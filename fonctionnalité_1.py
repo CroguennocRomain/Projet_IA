@@ -3,10 +3,12 @@
 import subprocess
 import sys
 
+'''
 def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
 install("plotly")
+'''
 
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
@@ -14,15 +16,16 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+
+from sklearn.metrics import normalized_mutual_info_score
 import numpy as np
 import plotly
 
-
-
+#utilisé pour la map mapbox et plotly.express
 
 data = pd.read_csv('Data_Arbre.csv')
 
-data.info(max)
+#data.info(max)
 
 '''
 # Assurer que les colonnes 'latitude' et 'longitude' sont de type float et ne contiennent pas de valeurs manquantes
@@ -31,18 +34,10 @@ data['longitude'] = pd.to_numeric(data['longitude'], errors='coerce')
 data = data.dropna(subset=['latitude', 'longitude'])
 '''
 
-#1. Préparation des données
+#1. Préparation des données. !!! ckeck !!!
 
+# Enlever les colonnes inutiles
 data = data.drop(['clc_nbr_diag'],axis=1)
-data.info(max)
-
-# Afficher les types de colonnes avant la conversion
-print("Types de colonnes avant la conversion :")
-print(data.dtypes)
-print(data.value_counts('feuillage'))
-
-# Instancier le LabelEncoder
-le = LabelEncoder()
 
 # Liste des colonnes à convertir
 colonnes_a_convertir = [
@@ -51,28 +46,22 @@ colonnes_a_convertir = [
     'fk_nomtech', 'villeca', 'feuillage', 'remarquable'
 ]
 
-# Appliquer le LabelEncoder à chaque colonne et convertir en float64
+# Instancier le LabelEncoder
+labE = LabelEncoder()
+
+# Appliquer le LabelEncoder à chaque colonne et convertir object en float64
 for colonne in colonnes_a_convertir:
     if colonne in data.columns:
-        data[colonne] = le.fit_transform(data[colonne].astype(str)).astype('float64')
-
-# Afficher les types de colonnes après la conversion
-print("\nTypes de colonnes après la conversion :")
-print(data.dtypes)
-
-# Afficher les premières lignes du DataFrame mis à jour
-print("\nDataFrame mis à jour :")
-print(data.head())
-print(data.value_counts('feuillage'))
-print(data.value_counts('haut_tot'))
-
-
+        data[colonne] = labE.fit_transform(data[colonne].astype(str)).astype('float64')
 
 
 #2. Apprentissage non supervisé
 
 # Extraire les données de la colonne 'haut_tot'
-X = data[['haut_tot']].values
+#X = data[['haut_tot']].values
+
+X, Y = data.data, data.target
+print(X,Y)
 
 
 # Fonction pour appliquer K-means et afficher les résultats
@@ -217,6 +206,10 @@ plt.show()
 #5. Préparation de script
 
 
+
+
+
+# Transformer une image jpeg en png
 #from PIL import Image
 
 # Charger l'image JPEG
