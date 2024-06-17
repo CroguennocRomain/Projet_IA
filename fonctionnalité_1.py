@@ -13,6 +13,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
 import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 import numpy as np
 import plotly
 
@@ -22,6 +23,13 @@ import plotly
 data = pd.read_csv('Data_Arbre.csv')
 
 data.info(max)
+
+'''
+# Assurer que les colonnes 'latitude' et 'longitude' sont de type float et ne contiennent pas de valeurs manquantes
+data['latitude'] = pd.to_numeric(data['latitude'], errors='coerce')
+data['longitude'] = pd.to_numeric(data['longitude'], errors='coerce')
+data = data.dropna(subset=['latitude', 'longitude'])
+'''
 
 #1. Préparation des données
 
@@ -173,6 +181,29 @@ print(metrics_table)
 plt.scatter(data_with_clusters['haut_tot'], [0] * len(data_with_clusters), c=data_with_clusters['cluster'], cmap='viridis')
 plt.xlabel('haut_tot')
 plt.title('Clustering K-means (n_clusters={})'.format(n_clusters))
+plt.show()
+
+# Charger la carte de Saint Quentin
+map_img = mpimg.imread('saint_quentin_map.png')
+
+# Définir les limites de la carte (ajuster en fonction de votre image et données)
+min_lat, max_lat = data['latitude'].min(), data['latitude'].max()
+min_lon, max_lon = data['longitude'].min(), data['longitude'].max()
+
+# Tracer les points des arbres sur la carte avec des couleurs différentes pour chaque cluster
+plt.figure(figsize=(10, 10))
+plt.imshow(map_img, extent=[min_lon, max_lon, min_lat, max_lat])
+
+# Tracer chaque cluster avec une couleur différente
+colors = ['red', 'blue', 'green', 'purple', 'orange', 'brown', 'pink', 'gray', 'cyan', 'magenta']
+for cluster in range(n_clusters):
+    clustered_data = data[data['cluster'] == cluster]
+    plt.scatter(clustered_data['longitude'], clustered_data['latitude'], color=colors[cluster % len(colors)], label=f'Cluster {cluster}', alpha=0.6)
+
+plt.xlabel('Longitude')
+plt.ylabel('Latitude')
+plt.title('Clustering des arbres à Saint Quentin selon la hauteur totale')
+plt.legend()
 plt.show()
 
 #5. Préparation de script
