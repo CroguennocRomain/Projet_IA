@@ -78,25 +78,22 @@ X = data[['haut_tot']].values
 # Fonction pour appliquer K-means et afficher les résultats
 def apply_kmeans(data, n_clusters):
     # Appliquer K-means
-    kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(data)
+    kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(X)
 
-    # Convertir le tableau NumPy en DataFrame
-    data_with_clusters = pd.DataFrame(data, columns=['haut_tot'])
+    # Ajouter les labels des clusters au DataFrame original
+    data['cluster'] = kmeans.labels_
 
-    # Ajouter les labels des clusters au DataFrame
-    data_with_clusters['cluster'] = kmeans.labels_
-
-    return data_with_clusters, kmeans
+    return data, kmeans
 
 # Spécifier le nombre de clusters
-n_clusters = 4  # Par exemple, 3 clusters
+n_clusters = 4  # Par exemple, 4 clusters
 
 # Appliquer K-means
-data_with_clusters, kmeans_model = apply_kmeans(X, n_clusters)
+data_with_clusters, kmeans_model = apply_kmeans(data, n_clusters)
 
 # Afficher les résultats
 print(data_with_clusters)
-print(data_with_clusters.value_counts('cluster'))
+print(data_with_clusters['cluster'].value_counts())
 
 
 
@@ -183,12 +180,23 @@ plt.xlabel('haut_tot')
 plt.title('Clustering K-means (n_clusters={})'.format(n_clusters))
 plt.show()
 
+print(n_clusters)
+print(data.info(max))
+print(data.value_counts('cluster'))
+n_clusters = 4
+
+data["cluster"] = data["cluster"]+1
+
+print(n_clusters)
+print(data.info(max))
+print(data.value_counts('cluster'))
+
 # Charger la carte de Saint Quentin
 map_img = mpimg.imread('saint_quentin_map.png')
 
 # Définir les limites de la carte (ajuster en fonction de votre image et données)
-min_lat, max_lat = data['latitude'].min(), data['latitude'].max()
-min_lon, max_lon = data['longitude'].min(), data['longitude'].max()
+min_lat, max_lat = 49.82, 49.871
+min_lon, max_lon = 3.2375, 3.325
 
 # Tracer les points des arbres sur la carte avec des couleurs différentes pour chaque cluster
 plt.figure(figsize=(10, 10))
@@ -196,7 +204,7 @@ plt.imshow(map_img, extent=[min_lon, max_lon, min_lat, max_lat])
 
 # Tracer chaque cluster avec une couleur différente
 colors = ['red', 'blue', 'green', 'purple', 'orange', 'brown', 'pink', 'gray', 'cyan', 'magenta']
-for cluster in range(n_clusters):
+for cluster in range(1,n_clusters+1):
     clustered_data = data[data['cluster'] == cluster]
     plt.scatter(clustered_data['longitude'], clustered_data['latitude'], color=colors[cluster % len(colors)], label=f'Cluster {cluster}', alpha=0.6)
 
@@ -209,4 +217,10 @@ plt.show()
 #5. Préparation de script
 
 
-from sklearn import preprocessing
+#from PIL import Image
+
+# Charger l'image JPEG
+#img = Image.open('saint-quentin.jpg')
+
+# Sauvegarder en PNG
+#img.save('saint_quentin_map.png')
