@@ -8,29 +8,11 @@ from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, precision_
 from sklearn.neighbors import KNeighborsClassifier
 
 
-data = pd.read_csv("Data_Arbre.csv")
+data = pd.read_csv("export_IA.csv")
 
 #=================================================================
 #=================== Préparation des données =====================
 #=================================================================
-
-# Mettre les noms tech en majuscules
-data['fk_nomtech'] = data['fk_nomtech'].str.upper()
-# Mettre les fk_stadedev en minuscules
-data['fk_stadedev'] = data['fk_stadedev'].str.lower()
-
-# Transformer données texte en données numériques
-    # fk_stadedev
-enc = OrdinalEncoder()
-train_cat = data[['fk_stadedev']]
-c = enc.fit_transform(train_cat)
-data[['fk_stadedev']] = c
-
-    # fk_nomtech
-enc2 = OrdinalEncoder()
-train_cat2 = data[['fk_nomtech']]
-c2 = enc2.fit_transform(train_cat2)
-data[['fk_nomtech']] = c2
 
 # Définir des intervalles d'âge dans une nouvelle colonne 'age_group'
 bins = [0, 10, 20, 30, 40, 50, 100, 200]
@@ -39,7 +21,7 @@ data['age_group'] = pd.cut(data['age_estim'], bins=bins, labels=labels, right=Tr
 data = data.dropna()  # supprimer les lignes NaN
 
 # Séparation des features X et des labels y
-X = data[['haut_tot', 'haut_tronc', 'tronc_diam', 'fk_stadedev', 'fk_nomtech']]
+X = data[['haut_tot', 'haut_tronc', 'tronc_diam', 'fk_stadedev', 'nomfrancais']]
 y = data['age_group']
 
 # Répartition des données : 80% apprentissage, 20% test
@@ -49,15 +31,6 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
-
-
-# Afficher les associations valeurs numériques / valeurs textuelles
-#for i, category in enumerate(enc.categories_[0]):
-    #print(f"  {category} -> {i}")
-
-#for i, category in enumerate(enc2.categories_[0]):
-    #print(f"  {category} -> {i}")
-
 
 
 #=================================================================
