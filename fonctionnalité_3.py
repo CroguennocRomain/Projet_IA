@@ -23,6 +23,7 @@ pd.set_option('display.max_columns', None)
 
 df = pd.read_csv("Data_Arbre.csv")
 
+
 colonnes = ["haut_tot","tronc_diam","fk_port","feuillage","fk_stadedev","fk_revetement","age_estim","fk_arb_etat"]
 data = df[colonnes].copy()
 
