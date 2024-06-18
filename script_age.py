@@ -5,6 +5,7 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn import svm, tree
 
 
 def predire_age(features, method):
@@ -31,8 +32,12 @@ def predire_age(features, method):
     # Sélection du modèle d'apprentissage
     if method == '0':
         model = SGDClassifier()
-    else:
+    elif method == '1':
         model = KNeighborsClassifier(n_neighbors=3)
+    elif method == '2':
+        model = svm.SVC()
+    elif method == '3':
+        model = tree.DecisionTreeClassifier()
     # Application du modèle à nos données
     model.fit(X_train, y_train)
 
