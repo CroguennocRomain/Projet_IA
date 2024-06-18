@@ -3,7 +3,7 @@
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 import time
-
+import sys
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
@@ -45,10 +45,10 @@ data['fk_arb_etat'] = data['fk_arb_etat'].replace({
 print(data)
 
 # Séparation des caractéristiques (X) et de la cible (y)
-X = data.drop(['fk_arb_etat', 'fk_port', 'fk_stadedev', 'feuillage', 'fk_revetement'], axis=1)
+X = data[['haut_tot', 'tronc_diam', 'age_estim', 'feuillage_encoded', 'fk_revetement_encoded', 'fk_port_encoded', 'fk_stadedev_encoded']]
 y = data['fk_arb_etat']
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-# ┃                 APPRENTISSAGE                 ┃
+# ┃                APPRENTISSAGE 1                ┃
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -60,7 +60,6 @@ rf_classifier.fit(X_train, y_train)
 
 # Prédiction sur l'ensemble de test
 y_pred = rf_classifier.predict(X_test)
-
 
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃               ANALYSE RESULTATS               ┃
@@ -101,7 +100,7 @@ plt.ylabel('Taux de vrais positifs (TPR)')
 plt.title('Courbe ROC')
 plt.legend(loc="lower right")
 plt.show()
-"""
+
 #-------------------------- GRID-SCV--------------------------
 # Définir la grille des hyperparamètres à tester
 param_grid = {
@@ -129,4 +128,8 @@ y_pred = grid_search.best_estimator_.predict(X_test)
 
 # Évaluer la précision du meilleur modèle sur l'ensemble de test
 accuracy = accuracy_score(y_test, y_pred)
-print(f"Précision sur l'ensemble de test : {accuracy:.2f}")"""
+print(f"Précision sur l'ensemble de test : {accuracy:.2f}")
+
+# ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+# ┃                APPRENTISSAGE 2                ┃
+# ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
