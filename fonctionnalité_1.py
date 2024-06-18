@@ -1,9 +1,11 @@
-#install panadas, scikit-learn, sklearn
+# ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+# ┃                 IMPORTATIONS                  ┃
+# ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
+'''
 import subprocess
 import sys
 
-'''
 def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
@@ -11,21 +13,14 @@ install("plotly")
 '''
 
 import pandas as pd
+import numpy as np
 from sklearn.preprocessing import LabelEncoder
 from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
+from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score, normalized_mutual_info_score
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-
-from sklearn.metrics import normalized_mutual_info_score
-import numpy as np
-import plotly
-
-#utilisé pour la map mapbox et plotly.express
+import plotly.express as px
 
 data = pd.read_csv('Data_Arbre.csv')
-
-#data.info(max)
 
 '''
 # Assurer que les colonnes 'latitude' et 'longitude' sont de type float et ne contiennent pas de valeurs manquantes
@@ -34,64 +29,86 @@ data['longitude'] = pd.to_numeric(data['longitude'], errors='coerce')
 data = data.dropna(subset=['latitude', 'longitude'])
 '''
 
-#1. Préparation des données. !!! ckeck !!!
+# ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+# ┃            PREPARATION DES DONNEES            ┃
+# ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 # Enlever les colonnes inutiles
 data = data.drop(['clc_nbr_diag'],axis=1)
 
-# Liste des colonnes à convertir
-colonnes_a_convertir = [
-    'clc_quartier', 'clc_secteur', 'fk_arb_etat', 'fk_stadedev',
-    'fk_port', 'fk_pied', 'fk_situation', 'fk_revetement',
-    'fk_nomtech', 'villeca', 'feuillage', 'remarquable'
-]
-
-# Instancier le LabelEncoder
+# Créer le LabelEncoder
 labE = LabelEncoder()
 
-# Appliquer le LabelEncoder à chaque colonne et convertir object en float64
-for colonne in colonnes_a_convertir:
-    if colonne in data.columns:
+# Appliquer le LabelEncoder à chaque colonne à convertir et convertir object en float64
+for colonne in data:
+    if data[colonne].dtype.name == 'object':
         data[colonne] = labE.fit_transform(data[colonne].astype(str)).astype('float64')
 
 
-#2. Apprentissage non supervisé
+# ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+# ┃          APPRENTISSAGE NON SUPERVISE          ┃
+# ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+# Extraire les données d'intérêt pour K-means (toutes les colonnes sauf latitude, longitude et haut_tot)
+X = data.drop(['latitude', 'longitude', 'haut_tot'], axis=1).values
+#X = data[['latitude', 'longitude']].values  # Latitude et longitude pour les coordonnées
 
 # Extraire les données de la colonne 'haut_tot'
-#X = data[['haut_tot']].values
-
-X, Y = data.data, data.target
-print(X,Y)
+Y = data['haut_tot'].copy().values  # Copie de la colonne haut_tot pour les couleurs
 
 
 # Fonction pour appliquer K-means et afficher les résultats
-def apply_kmeans(data, n_clusters):
+def apply_kmeans(data, X, n_clusters):
     # Appliquer K-means
-    kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(X)
+    kmeans = KMeans(n_clusters=n_clusters, random_state=0)
+    y_pred = kmeans.fit_predict(X)
 
     # Ajouter les labels des clusters au DataFrame original
-    data['cluster'] = kmeans.labels_
+    data['cluster'] = y_pred
+    data["cluster"] = data["cluster"]+1
+
+    # Calcul des métriques de performance
+    silhouette_avg = silhouette_score(X, y_pred)
+    calinski_harabasz = calinski_harabasz_score(X, y_pred)
+    davies_bouldin = davies_bouldin_score(X, y_pred)
+    NMI = normalized_mutual_info_score(Y.astype(np.uint8), y_pred)
+
+    print(f"Silhouette Score: {silhouette_avg}"," pire cas = -1 et meilleur cas = 1")
+    print(f"Calinski-Harabasz Index: {calinski_harabasz}"," pire cas = score faible et meilleur cas = score élevé")
+    print(f"Davies-Bouldin Index: {davies_bouldin}"," pire cas = score élevé et meilleur cas = score faible")
+    print(f"NMI (Normalized Mutual Index): {NMI}"," pire cas = 0 et meilleur cas = 1")
 
     return data, kmeans
 
 # Spécifier le nombre de clusters
-n_clusters = 4  # Par exemple, 4 clusters
+def demander_nombre_clusters():
+    while True:
+        try:
+            n_clusters = int(input("Veuillez entrer un nombre de clusters entre 2 et 10: "))
+            if 2 <= n_clusters <= 10:
+                return n_clusters
+            else:
+                print("Le nombre de clusters doit être entre 2 et 10.")
+        except ValueError:
+            print("Veuillez entrer un nombre entier valide.")
+
+# Utiliser la fonction pour obtenir le nombre de clusters
+n_clusters = demander_nombre_clusters()
+print(f"Nombre de clusters sélectionné: {n_clusters}")
 
 # Appliquer K-means
-data_with_clusters, kmeans_model = apply_kmeans(data, n_clusters)
+data_with_clusters, kmeans_model = apply_kmeans(data.copy(), X, n_clusters)
 
 # Afficher les résultats
 print(data_with_clusters)
 print(data_with_clusters['cluster'].value_counts())
-
-
 
 # test nombre de cluster
 
 
 # Déterminer l'inertie pour différents nombres de clusters
 inertia = []
-range_n_clusters = range(2, 12)  # Essayer de 1 à 10 clusters
+range_n_clusters = range(2, 11)  # Essayer de 1 à 10 clusters
 
 for n_clusters in range_n_clusters:
     kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(X)
@@ -106,7 +123,9 @@ plt.title('Méthode du coude pour déterminer le nombre optimal de clusters')
 plt.show()
 
 
-#3. Métrique pour apprentissage non supervisé
+# ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+# ┃   METRIQUE POUR APPRENTISSAGE NON SUPERVISE   ┃
+# ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 # Définir la plage de nombre de clusters à tester
 range_n_clusters = range(2, 11)  # On commence à 2 clusters car 1 cluster n'a pas de sens pour les métriques
@@ -117,8 +136,8 @@ calinski_harabasz_scores = []
 davies_bouldin_scores = []
 
 # Appliquer K-means et calculer les métriques pour chaque nombre de clusters
-for n_clusters in range_n_clusters:
-    kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(X)
+for iter_clusters in range_n_clusters:
+    kmeans = KMeans(n_clusters=iter_clusters, random_state=0).fit(X)
     labels = kmeans.labels_
 
     silhouette_scores.append(silhouette_score(X, labels))
@@ -162,23 +181,44 @@ metrics_table = pd.DataFrame({
 
 print(metrics_table)
 
-#4. Visualisation sur carte
 
+# ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+# ┃            VISUALISATION SUR CARTE            ┃
+# ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+'''
+
+mapbox_token = 'your_mapbox_token'
+
+# Utilisation de Plotly Express pour tracer les arbres sur une carte avec Mapbox
+fig = px.scatter_mapbox(data_with_clusters,
+                        lat='latitude',
+                        lon='longitude',
+                        color='cluster',  # Utiliser la colonne 'cluster' pour la couleur
+                        hover_name='nom',  # Nom à afficher au survol
+                        hover_data=['haut_tot'],  # Données supplémentaires au survol
+                        zoom=10,  # Niveau de zoom initial de la carte
+                        mapbox_style='open-street-map',  # Style de la carte Mapbox (open-street-map, carto-positron, etc.)
+                        color_continuous_scale=px.colors.qualitative.Vivid,  # Échelle de couleurs
+                        opacity=0.8,  # Opacité des points
+                        title='Représentation des arbres par clusters')  # Titre de la carte
+
+# Mise à jour du token Mapbox pour afficher la carte
+fig.update_layout(mapbox={'accesstoken': mapbox_token})
+
+# Affichage de la carte interactive
+fig.show()
+'''
+
+
+'''
 plt.scatter(data_with_clusters['haut_tot'], [0] * len(data_with_clusters), c=data_with_clusters['cluster'], cmap='viridis')
 plt.xlabel('haut_tot')
 plt.title('Clustering K-means (n_clusters={})'.format(n_clusters))
 plt.show()
 
-print(n_clusters)
-print(data.info(max))
-print(data.value_counts('cluster'))
-n_clusters = 4
-
 data["cluster"] = data["cluster"]+1
 
-print(n_clusters)
-print(data.info(max))
-print(data.value_counts('cluster'))
 
 # Charger la carte de Saint Quentin
 map_img = mpimg.imread('saint_quentin_map.png')
@@ -203,7 +243,12 @@ plt.title('Clustering des arbres à Saint Quentin selon la hauteur totale')
 plt.legend()
 plt.show()
 
-#5. Préparation de script
+'''
+
+# ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+# ┃             PREPARATION DE SCRIPT             ┃
+# ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
 
 
 
