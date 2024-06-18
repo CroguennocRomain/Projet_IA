@@ -186,6 +186,23 @@ print(metrics_table)
 # ┃            VISUALISATION SUR CARTE            ┃
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
+# Utilisation de Plotly Express pour tracer les arbres sur une carte avec Mapbox (OpenStreetMap)
+fig = px.scatter_mapbox(data_with_clusters,
+                        lat='latitude',
+                        lon='longitude',
+                        color='cluster',  # Utiliser la colonne 'cluster' pour la couleur
+                        hover_name='fk_nomtech',  # Nom à afficher au survol
+                        hover_data=['haut_tot'],  # Données supplémentaires au survol
+                        zoom=10,  # Niveau de zoom initial de la carte
+                        mapbox_style='open-street-map',  # Utiliser le style de carte OpenStreetMap
+                        color_continuous_scale=px.colors.qualitative.Vivid,  # Échelle de couleurs
+                        opacity=0.8,  # Opacité des points
+                        title='Représentation des arbres par clusters')  # Titre de la carte
+
+# Affichage de la carte interactive
+fig.show()
+
+
 '''
 
 mapbox_token = 'your_mapbox_token'
