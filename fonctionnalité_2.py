@@ -113,9 +113,6 @@ print("Précision : ", precision)
 rappel = recall_score(y_test, y_pred, average=None)
 print("Rappel : ", rappel)
 
-# f1 score de chaque classe
-f1score = f1_score(y_test, y_pred, average=None)
-print("F1 Score : ", f1score)
 
 #=================== Optimisation des paramètres ==================================
 
@@ -128,4 +125,30 @@ scv = GridSearchCV(estimator=classifier, param_grid=param_grid, cv=5, scoring="n
 scv.fit(X_train, y_train)
 
 print("Meilleurs paramètres : ", scv.best_params_)
+
+# Afficher les résultats d'optimisation
+
+res = pd.DataFrame(scv.cv_results_)
+# Sélectionner les colonnes pertinentes pour le tableau
+results = res[['param_loss', 'param_penalty', 'mean_test_score', 'std_test_score', 'rank_test_score']]
+# Préparer les données pour le tableau
+table_data = results.values
+# Définir les en-têtes du tableau
+columns = results.columns.tolist()
+# Créer la figure et les axes
+fig, ax = plt.subplots(figsize=(12, 8))  # Taille de la figure
+# Cacher les axes
+ax.xaxis.set_visible(False)
+ax.yaxis.set_visible(False)
+ax.set_frame_on(False)
+# Créer le tableau
+table = ax.table(cellText=table_data, colLabels=columns, cellLoc='center', loc='center')
+# Styliser le tableau
+table.auto_set_font_size(False)
+table.set_fontsize(10)
+table.auto_set_column_width(col=list(range(len(columns))))
+# Afficher la figure
+plt.title('Résultats de GridSearchCV')
+plt.show()
+
 
