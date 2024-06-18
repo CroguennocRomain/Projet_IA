@@ -23,18 +23,14 @@ pd.set_option('display.max_columns', None)
 
 df = pd.read_csv("Data_Arbre.csv")
 
-colonnes = ["longitude","latitude","haut_tot","tronc_diam","fk_port","feuillage","fk_stadedev","fk_revetement","age_estim","fk_arb_etat"]
+colonnes = ["haut_tot","tronc_diam","fk_port","feuillage","fk_stadedev","fk_revetement","age_estim","fk_arb_etat"]
 data = df[colonnes].copy()
 
 label_encoder = LabelEncoder()
 data['fk_revetement_encoded'] = label_encoder.fit_transform(data['fk_revetement'])
-data.drop('fk_revetement', axis=1, inplace=True)
 data['fk_port_encoded'] = label_encoder.fit_transform(data['fk_port'])
-data.drop('fk_port', axis=1, inplace=True)
 data['fk_stadedev_encoded'] = label_encoder.fit_transform(data['fk_stadedev'])
-data.drop('fk_stadedev', axis=1, inplace=True)
 data['feuillage_encoded'] = label_encoder.fit_transform(data['feuillage'])
-data.drop('feuillage', axis=1, inplace=True)
 
 data['fk_arb_etat'] = data['fk_arb_etat'].replace({
     'Essouché': 1,
@@ -48,7 +44,7 @@ data['fk_arb_etat'] = data['fk_arb_etat'].replace({
 print(data)
 
 # Séparation des caractéristiques (X) et de la cible (y)
-X = data.drop('fk_arb_etat', axis=1)  # Remplacez 'target_column' par le nom de votre colonne cible
+X = data.drop(['fk_arb_etat', 'fk_port', 'fk_stadedev', 'feuillage', 'fk_revetement'], axis=1)
 y = data['fk_arb_etat']
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃                 APPRENTISSAGE                 ┃
@@ -70,13 +66,13 @@ y_pred = rf_classifier.predict(X_test)
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 
-# Rapport de classification
+#------------------- Rapport de classification------------------
 accuracy = accuracy_score(y_test, y_pred)
 print(f'Accuracy : {accuracy:.2f}')
 report = classification_report(y_test, y_pred, zero_division=0)
 print(report)
 
-# Matrice de confusion
+#---------------- Matrice de confusion----------------------
 conf_matrix = confusion_matrix(y_test, y_pred)
 print(conf_matrix)
 
@@ -90,10 +86,10 @@ plt.show()
 
 y_pred_proba = rf_classifier.predict_proba(X_test)[:, 1]
 
+#------------------------Courbe ROC---------------------------
 fpr, tpr, thresholds = roc_curve(y_test, y_pred_proba)
 roc_auc = auc(fpr, tpr)
 
-# Tracer la courbe ROC
 plt.figure(figsize=(8, 6))
 plt.plot(fpr, tpr, color='blue', lw=2, label=f'ROC curve (AUC = {roc_auc:.2f})')
 plt.plot([0, 1], [0, 1], color='gray', linestyle='--', lw=2)
@@ -104,8 +100,8 @@ plt.ylabel('Taux de vrais positifs (TPR)')
 plt.title('Courbe ROC')
 plt.legend(loc="lower right")
 plt.show()
-
-
+"""
+#-------------------------- GRID-SCV--------------------------
 # Définir la grille des hyperparamètres à tester
 param_grid = {
     'n_estimators': [50, 100, 200],
@@ -132,4 +128,4 @@ y_pred = grid_search.best_estimator_.predict(X_test)
 
 # Évaluer la précision du meilleur modèle sur l'ensemble de test
 accuracy = accuracy_score(y_test, y_pred)
-print(f"Précision sur l'ensemble de test : {accuracy:.2f}")
+print(f"Précision sur l'ensemble de test : {accuracy:.2f}")"""
