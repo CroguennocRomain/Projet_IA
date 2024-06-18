@@ -8,7 +8,7 @@ from sklearn.neighbors import KNeighborsClassifier
 
 
 def predire_age(features, method):
-    data = pd.read_csv("Data_Arbre.csv")
+    data = pd.read_csv("export_IA.csv")
 
     # Définir des intervalles d'âge dans une nouvelle colonne 'age_group'
     bins = [0, 10, 20, 30, 40, 50, 100, 200]
