@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split, cross_val_score, GridSearc
 from sklearn.preprocessing import OrdinalEncoder, StandardScaler
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, precision_score, recall_score
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn import svm, tree
 
 
 data = pd.read_csv("export_IA.csv")
@@ -46,6 +47,14 @@ classifier.fit(X_train, y_train)
 neigh = KNeighborsClassifier(n_neighbors=3)
 neigh.fit(X_train, y_train)
 
+#=================== SVM ===================
+svm = svm.SVC()
+svm.fit(X_train, y_train)
+
+#========================== arbre de decision ================
+tree = tree.DecisionTreeClassifier()
+tree.fit(X_train, y_train)
+
 
 #=======================================================================
 #=================== Evaluation via des métriques  =====================
@@ -55,11 +64,15 @@ neigh.fit(X_train, y_train)
 #=================== Taux de classification ============================
 
 #y_pred = classifier.predict(X_test)
-y_pred = neigh.predict(X_test)
+#y_pred = neigh.predict(X_test)
+#y_pred = svm.predict(X_test)
+y_pred = tree.predict(X_test)
 
 # Tableau des taux de classification
 #folds = cross_val_score(classifier, X_test, y_test, scoring="accuracy", cv=5)
-folds = cross_val_score(neigh, X_test, y_test, scoring="accuracy", cv=5)
+#folds = cross_val_score(neigh, X_test, y_test, scoring="accuracy", cv=5)
+#folds = cross_val_score(svm, X_test, y_test, scoring="accuracy", cv=5)
+folds = cross_val_score(tree, X_test, y_test, scoring="accuracy", cv=5)
 
 print("Taux de classification : ", folds)
 
