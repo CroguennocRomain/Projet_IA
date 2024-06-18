@@ -19,6 +19,7 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score, normalized_mutual_info_score
 import matplotlib.pyplot as plt
 import plotly.express as px
+import matplotlib.image as mpimg
 
 data = pd.read_csv('Data_Arbre.csv')
 
@@ -110,8 +111,8 @@ print(data_with_clusters['cluster'].value_counts())
 inertia = []
 range_n_clusters = range(2, 11)  # Essayer de 1 à 10 clusters
 
-for n_clusters in range_n_clusters:
-    kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(X)
+for iter_clusters in range_n_clusters:
+    kmeans = KMeans(n_clusters=iter_clusters, random_state=0).fit(X)
     inertia.append(kmeans.inertia_)
 
 # Tracer la courbe du coude
@@ -186,6 +187,9 @@ print(metrics_table)
 # ┃            VISUALISATION SUR CARTE            ┃
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
+# Définir la palette de couleurs personnalisée avec les couleurs spécifiées
+custom_colors = ['red', 'yellow', 'green', 'navy', 'black', 'purple', 'orange', 'cyan', 'brown', 'lightblue']
+
 # Utilisation de Plotly Express pour tracer les arbres sur une carte avec Mapbox (OpenStreetMap)
 fig = px.scatter_mapbox(data_with_clusters,
                         lat='latitude',
@@ -195,7 +199,7 @@ fig = px.scatter_mapbox(data_with_clusters,
                         hover_data=['haut_tot'],  # Données supplémentaires au survol
                         zoom=10,  # Niveau de zoom initial de la carte
                         mapbox_style='open-street-map',  # Utiliser le style de carte OpenStreetMap
-                        color_continuous_scale=px.colors.qualitative.Vivid,  # Échelle de couleurs
+                        color_discrete_sequence=custom_colors,  # Utiliser la palette de couleurs personnalisée
                         opacity=0.8,  # Opacité des points
                         title='Représentation des arbres par clusters')  # Titre de la carte
 
@@ -227,8 +231,8 @@ fig.update_layout(mapbox={'accesstoken': mapbox_token})
 fig.show()
 '''
 
-
 '''
+
 plt.scatter(data_with_clusters['haut_tot'], [0] * len(data_with_clusters), c=data_with_clusters['cluster'], cmap='viridis')
 plt.xlabel('haut_tot')
 plt.title('Clustering K-means (n_clusters={})'.format(n_clusters))
@@ -236,7 +240,7 @@ plt.show()
 
 data["cluster"] = data["cluster"]+1
 
-
+'''
 # Charger la carte de Saint Quentin
 map_img = mpimg.imread('saint_quentin_map.png')
 
@@ -251,7 +255,7 @@ plt.imshow(map_img, extent=[min_lon, max_lon, min_lat, max_lat])
 # Tracer chaque cluster avec une couleur différente
 colors = ['red', 'blue', 'green', 'purple', 'orange', 'brown', 'pink', 'gray', 'cyan', 'magenta']
 for cluster in range(1,n_clusters+1):
-    clustered_data = data[data['cluster'] == cluster]
+    clustered_data = data_with_clusters[data_with_clusters['cluster'] == cluster]
     plt.scatter(clustered_data['longitude'], clustered_data['latitude'], color=colors[cluster % len(colors)], label=f'Cluster {cluster}', alpha=0.6)
 
 plt.xlabel('Longitude')
@@ -260,7 +264,7 @@ plt.title('Clustering des arbres à Saint Quentin selon la hauteur totale')
 plt.legend()
 plt.show()
 
-'''
+
 
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃             PREPARATION DE SCRIPT             ┃
