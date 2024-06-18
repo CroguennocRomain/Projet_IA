@@ -1,14 +1,11 @@
 import pandas as pd
-import numpy as np
+from numpy import mean
 import matplotlib.pyplot as plt
 from sklearn.linear_model import SGDClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OrdinalEncoder
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import cross_val_predict
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.preprocessing import OrdinalEncoder, StandardScaler
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, precision_score, recall_score, f1_score
-from numpy import mean
+
 
 data = pd.read_csv("Data_Arbre.csv")
 
@@ -16,7 +13,7 @@ data = pd.read_csv("Data_Arbre.csv")
 #=================== Préparation des données =====================
 #=================================================================
 
-# Mettre les noms en majuscules
+# Mettre les noms tech en majuscules
 data['fk_nomtech'] = data['fk_nomtech'].str.upper()
 # Mettre les fk_stadedev en minuscules
 data['fk_stadedev'] = data['fk_stadedev'].str.lower()
@@ -119,3 +116,16 @@ print("Rappel : ", rappel)
 # f1 score de chaque classe
 f1score = f1_score(y_test, y_pred, average=None)
 print("F1 Score : ", f1score)
+
+#=================== Optimisation des paramètres ==================================
+
+param_grid = {
+    'loss': ['hinge', 'log_loss', 'modified_huber', 'squared_hinge'],   # minimiser fonction de perte
+    'penalty': ['l2', 'l1', 'elasticnet'],  # éviter le surapprentissage
+}
+
+scv = GridSearchCV(estimator=classifier, param_grid=param_grid, cv=5, scoring="neg_mean_squared_error")
+scv.fit(X_train, y_train)
+
+print("Meilleurs paramètres : ", scv.best_params_)
+
