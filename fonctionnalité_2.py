@@ -8,6 +8,7 @@ from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, precision_
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import svm, tree
 import pickle
+from sklearn.decomposition import PCA
 
 
 
@@ -41,7 +42,7 @@ X_test = scaler.transform(X_test)
 # -----------------------------
 #============= Stochastic Gradient Descent (SGD) =================
 
-sgd = SGDClassifier(loss='log_loss', penalty='elasticnet')
+sgd = SGDClassifier(loss='log_loss', penalty='l1', tol=1e-05)
 sgd.fit(X_train, y_train)
 
 with open("models/age_SGD.pkl", "wb") as f:
@@ -62,7 +63,7 @@ with open("models/age_SVM.pkl", "wb") as f:
     pickle.dump(svm, f)
 
 #========================== arbre de decision ================
-tree = tree.DecisionTreeClassifier()
+tree = tree.DecisionTreeClassifier(criterion='gini', max_depth=40, min_samples_leaf=1, min_samples_split=2, splitter='best')
 tree.fit(X_train, y_train)
 
 with open("models/age_tree.pkl", "wb") as f:
@@ -95,7 +96,7 @@ print("Taux DecisionTree : ", score_tree)
 # ------------------------------
 # |   MATRICE DE CONFUSION     |
 # ------------------------------
-
+"""
 mc_sgd = ConfusionMatrixDisplay.from_predictions(y_test, y_pred_sgd, normalize='true', values_format=".0%")
 plt.title('Matrice de Confusion - SGD')
 plt.show()
@@ -111,13 +112,14 @@ plt.show()
 mc_tree = ConfusionMatrixDisplay.from_predictions(y_test, y_pred_tree, normalize='true', values_format=".0%")
 plt.title('Matrice de Confusion - Decision Tree')
 plt.show()
-
+"""
 
 # -----------------------------
 # |   PRECISION ET RAPPEL     |
 # -----------------------------
 
 # précision de chaque classe
+"""
 precision_sgd = precision_score(y_test, y_pred_sgd, average=None, zero_division=1)
 precision_svm = precision_score(y_test, y_pred_svm, average=None, zero_division=1)
 precision_neigh = precision_score(y_test, y_pred_neigh, average=None, zero_division=1)
@@ -138,7 +140,7 @@ print("Rappel SGD: ", rappel_sgd)
 print("Rappel SVM: ", rappel_svm)
 print("Rappel K nearest neighbors: ", rappel_neigh)
 print("Rappel DecisionTree: ", rappel_tree)
-
+"""
 
 # -----------------------------------
 # |     OPTIMISATION PARAMETRES     |
@@ -147,8 +149,9 @@ print("Rappel DecisionTree: ", rappel_tree)
 # modèle SGD
 """
 param_sgd = {
-    'loss': ['hinge', 'log_loss', 'modified_huber', 'squared_hinge'],   # minimiser fonction de perte
-    'penalty': ['l2', 'l1', 'elasticnet']   # éviter surapprentissage
+    'loss': ['hinge', 'log_loss', 'modified_huber', 'squared_hinge'],
+    'penalty': ['l2', 'l1', 'elasticnet'],
+    'tol': [1e-3, 1e-4, 1e-5]
 }
 
 grid_sgd = GridSearchCV(estimator=sgd, param_grid=param_sgd, cv=5, scoring="accuracy")
@@ -183,4 +186,20 @@ grid_neigh = GridSearchCV(estimator=neigh, param_grid=param_neigh, cv=5, scoring
 grid_neigh.fit(X_train, y_train)
 
 print("Meilleurs paramètres - KNeighbors : ", grid_neigh.best_params_)
+"""
+
+# modèle arbre de décision
+"""
+param_tree = {
+    'criterion': ['gini', 'entropy'],
+    'splitter': ['best', 'random'],
+    'max_depth': [None, 10, 20, 30, 40, 50],
+    'min_samples_split': [2, 5, 10],
+    'min_samples_leaf': [1, 2, 4]
+}
+
+grid_tree = GridSearchCV(estimator=tree, param_grid=param_tree, cv=5, scoring="accuracy")
+grid_tree.fit(X_train, y_train)
+
+print("Meilleurs paramètres - DecisionTree : ", grid_tree.best_params_)
 """
