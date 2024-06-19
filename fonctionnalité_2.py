@@ -7,6 +7,8 @@ from sklearn.preprocessing import OrdinalEncoder, StandardScaler
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, precision_score, recall_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import svm, tree
+import pickle
+
 
 
 data = pd.read_csv("export_IA.csv")
@@ -29,6 +31,7 @@ y = data['age_group']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # Normaliser les données
+# Faire en sorte que les données aient une moyenne de 0 et une variance de 1
 scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
@@ -38,20 +41,32 @@ X_test = scaler.transform(X_test)
 # -----------------------------
 #============= Stochastic Gradient Descent (SGD) =================
 
-sgd = SGDClassifier()
+sgd = SGDClassifier(loss='log_loss', penalty='elasticnet')
 sgd.fit(X_train, y_train)
 
+with open("age_SGD.pkl", "wb") as f:
+    pickle.dump(sgd, f)
+
 #============== k plus proche voisin =============================
-neigh = KNeighborsClassifier(n_neighbors=3)
+neigh = KNeighborsClassifier(algorithm='brute', n_neighbors=7, p=1, weights='distance')
 neigh.fit(X_train, y_train)
 
+with open("age_neigh.pkl", "wb") as f:
+    pickle.dump(neigh, f)
+
 #=================== SVM ===================
-svm = svm.SVC()
+svm = svm.SVC(C=100, kernel='rbf', probability=True)
 svm.fit(X_train, y_train)
+
+with open("age_SVM.pkl", "wb") as f:
+    pickle.dump(svm, f)
 
 #========================== arbre de decision ================
 tree = tree.DecisionTreeClassifier()
 tree.fit(X_train, y_train)
+
+with open("age_tree.pkl", "wb") as f:
+    pickle.dump(tree, f)
 
 
 # -----------------------------
@@ -145,7 +160,7 @@ print("Meilleurs paramètres - SGD : ", grid_sgd.best_params_)
 # modèle SVM
 """
 param_svm = {
-    'C': [ 1, 10, 100],
+    'C': [1, 10, 100],
     'kernel': ['linear', 'poly', 'rbf', 'sigmoid']
 }
 
@@ -156,7 +171,7 @@ print("Meilleurs paramètres - SVM : ", grid_svm.best_params_)
 """
 
 # modèle k-Neighbors
-
+"""
 param_neigh = {
     'n_neighbors': [3, 5, 7, 9],
     'weights': ['uniform', 'distance'],
@@ -168,3 +183,4 @@ grid_neigh = GridSearchCV(estimator=neigh, param_grid=param_neigh, cv=5, scoring
 grid_neigh.fit(X_train, y_train)
 
 print("Meilleurs paramètres - KNeighbors : ", grid_neigh.best_params_)
+"""
