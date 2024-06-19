@@ -44,28 +44,28 @@ X_test = scaler.transform(X_test)
 sgd = SGDClassifier(loss='log_loss', penalty='elasticnet')
 sgd.fit(X_train, y_train)
 
-with open("age_SGD.pkl", "wb") as f:
+with open("models/age_SGD.pkl", "wb") as f:
     pickle.dump(sgd, f)
 
 #============== k plus proche voisin =============================
 neigh = KNeighborsClassifier(algorithm='brute', n_neighbors=7, p=1, weights='distance')
 neigh.fit(X_train, y_train)
 
-with open("age_neigh.pkl", "wb") as f:
+with open("models/age_neigh.pkl", "wb") as f:
     pickle.dump(neigh, f)
 
 #=================== SVM ===================
 svm = svm.SVC(C=100, kernel='rbf', probability=True)
 svm.fit(X_train, y_train)
 
-with open("age_SVM.pkl", "wb") as f:
+with open("models/age_SVM.pkl", "wb") as f:
     pickle.dump(svm, f)
 
 #========================== arbre de decision ================
 tree = tree.DecisionTreeClassifier()
 tree.fit(X_train, y_train)
 
-with open("age_tree.pkl", "wb") as f:
+with open("models/age_tree.pkl", "wb") as f:
     pickle.dump(tree, f)
 
 

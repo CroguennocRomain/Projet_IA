@@ -26,16 +26,16 @@ def predire_age(values, method):
 
     # Sélection du modèle d'apprentissage
     if method == '0':
-        with open("age_SGD.pkl", "rb") as f:
+        with open("models/age_SGD.pkl", "rb") as f:
             model = pickle.load(f)
     elif method == '1':
-        with open("age_neigh.pkl", "rb") as f:
+        with open("models/age_neigh.pkl", "rb") as f:
             model = pickle.load(f)
     elif method == '2':
-        with open("age_SVM.pkl", "rb") as f:
+        with open("models/age_SVM.pkl", "rb") as f:
             model = pickle.load(f)
     elif method == '3':
-        with open("age_tree.pkl", "rb") as f:
+        with open("models/age_tree.pkl", "rb") as f:
             model = pickle.load(f)
 
     # Créer l'instance au bon format
