@@ -34,13 +34,13 @@ def predire_tempete(method, features, arbre):
     # Sélection du modèle d'apprentissage
     if method == '0':
         model = RandomForestClassifier(n_estimators=100, random_state=42)
-        model_filename = 'random_forest_model.pkl'
+        model_filename = 'models/rf_model.pkl'
     elif method == '1':
         model = KNeighborsClassifier(n_neighbors=5)
-        model_filename = 'knn_model.pkl'
+        model_filename = 'models/knn_model.pkl'
     elif method == '2':
         model = SVC(probability=True, random_state=42)
-        model_filename = 'svm_model.pkl'
+        model_filename = 'models/svm_model.pkl'
 
     # Entraînement et sauvegarde du modèle
     model.fit(X_train, y_train)
