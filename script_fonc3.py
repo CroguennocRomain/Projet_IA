@@ -1,80 +1,70 @@
 import pandas as pd
 import sys
+import pickle
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report
+from sklearn.neighbors import KNeighborsClassifier
 import json
 
+def predire_tempete(method, features, arbre):
+    df = pd.read_csv("Data_Arbre.csv")
+    pd.set_option('future.no_silent_downcasting', True)
 
-def charger_donnees(chemin_fichier):
-    return pd.read_csv(chemin_fichier)
+    colonnes = ["latitude", "longitude", "haut_tot", "haut_tronc", "fk_stadedev", "fk_revetement","fk_arb_etat", "fk_situation"]
+    data = df[colonnes].copy()
 
-def preparer_donnees(data, features):
-    data = data[features].copy()
+    label_encoder = LabelEncoder()
+    data['fk_revetement_encoded'] = label_encoder.fit_transform(data['fk_revetement'])
+    data['fk_situation_encoded'] = label_encoder.fit_transform(data['fk_situation'])
+    data['fk_stadedev_encoded'] = label_encoder.fit_transform(data['fk_stadedev'])
+    data['fk_arb_etat'] = data['fk_arb_etat'].replace({
+        'Essouché': 1,
+        'EN PLACE': 0,
+        'SUPPRIMÉ': 0,
+        'Non essouché': 1,
+        'REMPLACÉ': 0,
+        'ABATTU': 0
+    }).infer_objects(copy=False)
+    X = data[features]
+    Y = data['fk_arb_etat']
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
 
-    # Exemple d'encodage des variables catégorielles si nécessaire
-    # Exemple d'utilisation de LabelEncoder ou OneHotEncoder si nécessaire
-
-    return data
-
-def entrainer_modele(X_train, y_train, method='random_forest'):
-    """
-    Entraîne un modèle de classification supervisée.
-    """
-    if method == 'random_forest':
+    # Sélection du modèle d'apprentissage
+    if method == '0':
         model = RandomForestClassifier(n_estimators=100, random_state=42)
-    # Ajouter d'autres méthodes de classification comme SVM, réseaux de neurones, etc.
+        model_filename = 'models/rf_model.pkl'
+    elif method == '1':
+        model = KNeighborsClassifier(n_neighbors=5)
+        model_filename = 'models/knn_model.pkl'
+    elif method == '2':
+        model = SVC(probability=True, random_state=42)
+        model_filename = 'models/svm_model.pkl'
 
+    # Entraînement et sauvegarde du modèle
     model.fit(X_train, y_train)
-    return model
+    with open(model_filename, 'rb') as file:
+        #pickle.dump(model, file)
+        model = pickle.load(file)
 
-def predire_et_generer_json(model, X_test, features):
-    """
-    Fait des prédictions avec le modèle et génère une sortie JSON.
-    """
     y_pred = model.predict(X_test)
 
-    arbres_susceptibles = []
-    for i, prediction in enumerate(y_pred):
-        if prediction == 1:  # Adapté selon votre modèle et vos données
-            arbre = {
-                'id': i + 1,
-                'features': {feat: X_test.iloc[i][feat] for feat in features}
-            }
-            arbres_susceptibles.append(arbre)
+    res = y_pred.tolist()
+    json_data = json.dumps(res[arbre])
 
-    # Générer la sortie JSON
-    output_json = json.dumps(arbres_susceptibles, indent=4)
-    return output_json
+    return json_data
+
 
 def main():
-    # Paramètres d'entrée
-    chemin_fichier = "Data_Arbre.csv"
-    features = sys.argv[1:-1]
-    method = sys.argv[-1]
+    features = sys.argv[1:-2]
+    method = sys.argv[-2]
+    arbre = sys.argv[-1]
+    arbre = int(arbre)
 
-    # Charger les données
-    data = charger_donnees(chemin_fichier)
 
-    # Préparer les données
-    X = preparer_donnees(data, features)
-    y = data['target_column']  # Remplacez 'target_column' par votre colonne cible
-
-    # Séparation des données en ensembles d'entraînement et de test
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    # Entraîner le modèle
-    model = entrainer_modele(X_train, y_train, method)
-
-    # Faire des prédictions sur l'ensemble de test
-    y_pred = predire_et_generer_json(model, X_test, features)
-
-    # Générer la sortie au format JSON
-    output = {
-        "predictions": y_pred.tolist()
-    }
-
-    print(json.dumps(output, indent=4))
+    tempete = predire_tempete(method, features,arbre)
+    print(tempete)
 
 
 if __name__ == "__main__":
