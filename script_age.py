@@ -1,54 +1,17 @@
 import sys
 import json
+
+import numpy as np
 import pandas as pd
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import svm, tree
+import pickle
 
 
-def predire_age(features, method):
-    data = pd.read_csv("export_IA.csv")
-
-    # Définir des intervalles d'âge dans une nouvelle colonne 'age_group'
-    bins = [0, 10, 20, 30, 40, 50, 100, 200]
-    labels = [0, 1, 2, 3, 4, 5, 6]
-    data['age_group'] = pd.cut(data['age_estim'], bins=bins, labels=labels, right=True)
-    data = data.dropna()  # supprimer les lignes NaN
-
-    # Séparation des features choisies X et des labels y
-    X = data[features]
-    y = data['age_group']
-
-    # Répartition des données : 80% apprentissage, 20% test
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    # Normaliser les données
-    scaler = StandardScaler()
-    X_train = scaler.fit_transform(X_train)
-    X_test = scaler.transform(X_test)
-
-    # Sélection du modèle d'apprentissage
-    if method == '0':
-        model = SGDClassifier()
-    elif method == '1':
-        model = KNeighborsClassifier(n_neighbors=3)
-    elif method == '2':
-        model = svm.SVC()
-    elif method == '3':
-        model = tree.DecisionTreeClassifier()
-    # Application du modèle à nos données
-    model.fit(X_train, y_train)
-
-    # Prédictions
-    y_pred = model.predict(X_test)
-    json_data = json.dumps(y_pred.tolist())
-
-    return json_data
-
-
-def predire_age2(values, method):
+def predire_age(values, method):
 
     # associer noms de colonnes et valeurs dans une structure json
     data = {}
@@ -63,18 +26,40 @@ def predire_age2(values, method):
 
     # Sélection du modèle d'apprentissage
     if method == '0':
-        model = SGDClassifier()
+        with open("age_SGD.pkl", "rb") as f:
+            model = pickle.load(f)
     elif method == '1':
-        model = KNeighborsClassifier(n_neighbors=3)
+        with open("age_neigh.pkl", "rb") as f:
+            model = pickle.load(f)
     elif method == '2':
-        model = svm.SVC()
+        with open("age_SVM.pkl", "rb") as f:
+            model = pickle.load(f)
     elif method == '3':
-        model = tree.DecisionTreeClassifier()
+        with open("age_tree.pkl", "rb") as f:
+            model = pickle.load(f)
 
-    print(data)
-    print(model)
+    # Créer l'instance au bon format
+    arbre = np.array([[int(data["haut_tot"]), int(data["haut_tronc"]), int(data["tronc_diam"]), int(data["fk_stadedev"]), int(data["nomfrancais"])]])
 
-    return 0
+    # Normalisation
+    scaler = StandardScaler()
+    arbre_norm = scaler.fit_transform(arbre)
+
+    # Proba de chaque classe
+    classes = model.predict_proba(arbre_norm)
+
+    # Créer structure json
+    json_data = {}
+    json_data['0-10'] = classes[0][0]
+    json_data['11-20'] = classes[0][1]
+    json_data['21-30'] = classes[0][2]
+    json_data['31-40'] = classes[0][3]
+    json_data['41-50'] = classes[0][4]
+    json_data['51-100'] = classes[0][5]
+    json_data['101-200'] = classes[0][6]
+
+    # Renvoie les données en format json
+    return json.dumps(json_data)
 
 
 # On récupère les arguments noms de colonnes dans features
@@ -85,5 +70,5 @@ for i in range(1, i_last_arg):
     features.append(sys.argv[i])
 
 
-predire_age2(features, sys.argv[i_last_arg])
-#print(age)
+age = predire_age(features, sys.argv[i_last_arg])
+print(age)
