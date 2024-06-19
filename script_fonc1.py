@@ -17,8 +17,8 @@ def main():
 
     # Nouvelle ligne de données à encoder
     new_data = {
-        'haut_tot': [sys.argv[1]],
-        'haut_tronc': [sys.argv[2]],
+        'haut_tot': [float(sys.argv[1])],
+        'haut_tronc': [float(sys.argv[2])],
         'fk_stadedev': [sys.argv[3]],
         'fk_nomtech': [sys.argv[4]]
     }
@@ -29,6 +29,8 @@ def main():
 
     # Charger les données originales pour obtenir la structure complète
     data = pd.read_csv('Data_Arbre.csv')
+
+    new_data_df.info(max)
 
     # Ajouter les colonnes manquantes avec des valeurs par défaut
     for colonne in data.columns:
