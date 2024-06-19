@@ -209,6 +209,8 @@ print(metrics_table)
 # ┃            VISUALISATION SUR CARTE            ┃
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
+data_with_clusters['cluster'] = data_with_clusters['cluster'].astype(str)
+
 # Définir la palette de couleurs personnalisée avec les couleurs spécifiées
 custom_colors = ['red', 'yellow', 'green', 'navy', 'black', 'purple', 'orange', 'cyan', 'brown', 'lightblue']
 
@@ -229,7 +231,7 @@ fig = px.scatter_mapbox(data_with_clusters,
 fig.show()
 
 
-'''
+
 # Charger la carte de Saint Quentin
 map_img = mpimg.imread('saint_quentin_map.png')
 
@@ -253,7 +255,6 @@ plt.title('Clustering des arbres à Saint Quentin selon la hauteur totale')
 plt.legend()
 plt.show()
 
-'''
 
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃             PREPARATION DE SCRIPT             ┃
