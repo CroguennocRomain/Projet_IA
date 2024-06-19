@@ -58,7 +58,7 @@ X = data.drop(['latitude', 'longitude', 'haut_tot'], axis=1).values
 Y = data['haut_tot'].copy().values  # Copie de la colonne haut_tot pour les couleurs
 
 
-# Fonction pour appliquer K-means et afficher les résultats
+# ======================Fonction pour appliquer K-means et afficher les résultats=========================
 def apply_kmeans(data, X, n_clusters):
     # Appliquer K-means
     kmeans = KMeans(n_clusters=n_clusters, random_state=0)
@@ -104,9 +104,7 @@ data_with_clusters, kmeans_model = apply_kmeans(data.copy(), X, n_clusters)
 print(data_with_clusters)
 print(data_with_clusters['cluster'].value_counts())
 
-# test nombre de cluster
-
-
+# =====================test nombre de cluster==========================
 # Déterminer l'inertie pour différents nombres de clusters
 inertia = []
 range_n_clusters = range(2, 11)  # Essayer de 1 à 10 clusters
@@ -122,6 +120,15 @@ plt.xlabel('Nombre de clusters')
 plt.ylabel('Inertie')
 plt.title('Méthode du coude pour déterminer le nombre optimal de clusters')
 plt.show()
+
+#====================== créer fichier centroide cluster ================================
+
+#Save the centroids to a CSV file.
+centroids = kmeans_model.cluster_centers_
+def save_centroids(centroids, output_file):
+    centroids_df = pd.DataFrame(centroids, columns=[f'feature_{i}' for i in range(centroids.shape[1])])
+    centroids_df.to_csv(output_file, index=False)
+
 
 
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
