@@ -239,13 +239,19 @@ map_img = mpimg.imread('saint_quentin_map.png')
 min_lat, max_lat = 49.82, 49.871
 min_lon, max_lon = 3.2375, 3.325
 
+# Assurez-vous que la colonne 'cluster' est convertie en chaîne de caractères
+data_with_clusters['cluster'] = data_with_clusters['cluster'].astype(int)
+
+# Définir le nombre de clusters
+n_clusters = data_with_clusters['cluster'].nunique()
+
 # Tracer les points des arbres sur la carte avec des couleurs différentes pour chaque cluster
 plt.figure(figsize=(10, 10))
 plt.imshow(map_img, extent=[min_lon, max_lon, min_lat, max_lat])
 
 # Tracer chaque cluster avec une couleur différente
 colors = ['red', 'blue', 'green', 'purple', 'orange', 'brown', 'pink', 'gray', 'cyan', 'magenta']
-for cluster in range(1,n_clusters+1):
+for cluster in range(n_clusters):
     clustered_data = data_with_clusters[data_with_clusters['cluster'] == cluster]
     plt.scatter(clustered_data['longitude'], clustered_data['latitude'], color=colors[cluster % len(colors)], label=f'Cluster {cluster}', alpha=0.6)
 
