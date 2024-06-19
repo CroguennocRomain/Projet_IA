@@ -2,6 +2,8 @@
 # ┃                 IMPORTATIONS                  ┃
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
+import pickle
+
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
@@ -44,7 +46,7 @@ data['fk_arb_etat'] = data['fk_arb_etat'].replace({
     'REMPLACÉ': 0,
     'ABATTU': 0
 })
-
+"""
 # X ET Y POUR RANDOM FOREST
 X = data[["haut_tronc","latitude","longitude",'fk_stadedev_encoded','haut_tot']]
 y = data['fk_arb_etat']
@@ -52,12 +54,12 @@ y = data['fk_arb_etat']
 # X ET Y POUR KNN
 X = data[["haut_tronc","latitude","longitude",'fk_stadedev_encoded','haut_tot','fk_revetement_encoded','fk_situation_encoded','fk_pied_encoded','age_estim']]
 y = data['fk_arb_etat']
-"""
+
 
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃                APPRENTISSAGE 1                ┃
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
+"""
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 
@@ -66,27 +68,32 @@ rf_classifier = RandomForestClassifier(n_estimators=100, random_state=42)
 # Entraînement du modèle
 rf_classifier.fit(X_train, y_train)
 
-# Prédiction sur l'ensemble de test
-y_pred = rf_classifier.predict(X_test)
+"""
 
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃                APPRENTISSAGE 2                ┃
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-"""
+
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # Entraînement du modèle KNN
 knn_classifier = KNeighborsClassifier(n_neighbors=5)
 knn_classifier.fit(X_train, y_train)
 
+
+
+# Sauvegarde du modèl
+with open('knn_model.pkl', 'wb') as file:
+    pickle.dump(knn_classifier, file)
+
 # Prédiction sur l'ensemble de test
-y_pred = knn_classifier.predict(X_test)
-"""
+#y_pred = knn_classifier.predict(X_test)
+
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃               ANALYSE RESULTATS               ┃
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-
+""""
 #------------------- Rapport de classification------------------
 accuracy = accuracy_score(y_test, y_pred)
 print(f'Accuracy : {accuracy:.2f}')
@@ -125,7 +132,7 @@ plt.show()
 
 #-------------------------- GRID-SCV--------------------------
 # Définir la grille des hyperparamètres à tester
-"""param_grid = {
+param_grid = {
     'n_estimators': [50, 100, 200],
     'max_depth': [None, 10, 20],
     'min_samples_split': [2, 5, 10],
