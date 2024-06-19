@@ -12,11 +12,21 @@ from sklearn.decomposition import PCA
 
 
 
-data = pd.read_csv("export_IA.csv")
+#data = pd.read_csv("export_IA.csv")
+data = pd.read_csv("Data_Arbre.csv")
 
 # -----------------------------
 # |   PREPARATION DONNEES     |
 # -----------------------------
+
+# Transformer données catégorielles en numériques
+encoder = OrdinalEncoder()
+for colonne in data:
+    if data[colonne].dtype.name == 'object':
+        data[colonne] = encoder.fit_transform(data[[colonne]])
+# Sauvegarde de l'encodeur
+with open('ordinal_encoder.pkl', 'wb') as f:
+    pickle.dump(encoder, f)
 
 # Définir des intervalles d'âge dans une nouvelle colonne 'age_group'
 bins = [0, 10, 20, 30, 40, 50, 100, 200]
@@ -25,7 +35,7 @@ data['age_group'] = pd.cut(data['age_estim'], bins=bins, labels=labels, right=Tr
 data = data.dropna()  # supprimer les lignes NaN
 
 # Séparation des features X et des labels y
-X = data[['haut_tot', 'haut_tronc', 'tronc_diam', 'fk_stadedev', 'nomfrancais']]
+X = data[['haut_tot', 'haut_tronc', 'tronc_diam', 'fk_stadedev', 'fk_nomtech']]
 y = data['age_group']
 
 # Répartition des données : 80% apprentissage, 20% test
@@ -96,7 +106,7 @@ print("Taux DecisionTree : ", score_tree)
 # ------------------------------
 # |   MATRICE DE CONFUSION     |
 # ------------------------------
-"""
+
 mc_sgd = ConfusionMatrixDisplay.from_predictions(y_test, y_pred_sgd, normalize='true', values_format=".0%")
 plt.title('Matrice de Confusion - SGD')
 plt.show()
@@ -112,7 +122,7 @@ plt.show()
 mc_tree = ConfusionMatrixDisplay.from_predictions(y_test, y_pred_tree, normalize='true', values_format=".0%")
 plt.title('Matrice de Confusion - Decision Tree')
 plt.show()
-"""
+
 
 # -----------------------------
 # |   PRECISION ET RAPPEL     |
