@@ -2,7 +2,7 @@ import pandas as pd
 from numpy import mean
 import matplotlib.pyplot as plt
 from sklearn.linear_model import SGDClassifier
-from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV, RandomizedSearchCV
 from sklearn.preprocessing import OrdinalEncoder, StandardScaler, scale
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, precision_score, recall_score
 from sklearn.neighbors import KNeighborsClassifier
@@ -178,15 +178,13 @@ res_sgd.to_csv('GridSearchResults/grid_search_res_sgd.csv', index=False)
 # modèle SVM
 """
 param_svm = {
-    'C': [1, 10, 100],
-    'kernel': ['linear', 'poly', 'rbf', 'sigmoid']
+    'C': [10, 100],
+    'kernel': ['linear', 'rbf', 'sigmoid']
 }
-
 grid_svm = GridSearchCV(estimator=svm, param_grid=param_svm, cv=3, scoring="accuracy")
 grid_svm.fit(X_train, y_train)
 
 print("Meilleurs paramètres - SVM : ", grid_svm.best_params_)
-res_svm = pd.DataFrame(grid_svm.cv_results_)
 res_svm = pd.DataFrame(grid_svm.cv_results_)
 res_svm.to_csv('GridSearchResults/grid_search_res_svm.csv', index=False)
 """

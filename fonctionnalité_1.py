@@ -20,6 +20,7 @@ from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bo
 import matplotlib.pyplot as plt
 import plotly.express as px
 import matplotlib.image as mpimg
+import pickle
 
 data = pd.read_csv('Data_Arbre.csv')
 
@@ -33,17 +34,36 @@ data = data.dropna(subset=['latitude', 'longitude'])
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃            PREPARATION DES DONNEES            ┃
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
-# Enlever les colonnes inutiles
-data = data.drop(['clc_nbr_diag'],axis=1)
-
-
+'''
 # Instancier l'OrdinalEncoder
 encoder = OrdinalEncoder()
 
 for colonne in data:
     if data[colonne].dtype.name == 'object':
         data[colonne] = encoder.fit_transform(data[[colonne]])
+'''
+print(data['fk_stadedev'])
+print(data['fk_nomtech'])
+# Sélectionner les colonnes catégorielles
+categorical_columns = [colonne for colonne in data if data[colonne].dtype.name == 'object']
+
+# Créer et entraîner l'OrdinalEncoder
+encoder = OrdinalEncoder()
+data[categorical_columns] = encoder.fit_transform(data[categorical_columns])
+
+# Enregistrer l'encodeur dans un fichier
+with open('ordinal_encoder.pkl', 'wb') as file:
+    pickle.dump(encoder, file)
+
+data.info(max)
+
+# Enlever les colonnes inutiles
+data = data.drop(['clc_nbr_diag'],axis=1)
+
+
+
+print(data['fk_stadedev'])
+print(data['fk_nomtech'])
 
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃          APPRENTISSAGE NON SUPERVISE          ┃
@@ -116,7 +136,7 @@ plt.title('Méthode du coude pour déterminer le nombre optimal de clusters')
 plt.show()
 
 #====================== créer fichier centroide cluster ================================
-'''
+
 #Save the centroids to a CSV file.
 centroids = kmeans_model.cluster_centers_
 print(centroids)
@@ -125,7 +145,7 @@ def save_centroids(centroids, output_file):
     centroids_df.to_csv(output_file, index=False)
 
 save_centroids(centroids, 'centroids.csv')
-'''
+
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃   METRIQUE POUR APPRENTISSAGE NON SUPERVISE   ┃
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
@@ -189,6 +209,8 @@ print(metrics_table)
 # ┃            VISUALISATION SUR CARTE            ┃
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
+data_with_clusters['cluster'] = data_with_clusters['cluster'].astype(str)
+
 # Définir la palette de couleurs personnalisée avec les couleurs spécifiées
 custom_colors = ['red', 'yellow', 'green', 'navy', 'black', 'purple', 'orange', 'cyan', 'brown', 'lightblue']
 
@@ -209,17 +231,7 @@ fig = px.scatter_mapbox(data_with_clusters,
 fig.show()
 
 
-'''
 
-plt.scatter(data_with_clusters['haut_tot'], [0] * len(data_with_clusters), c=data_with_clusters['cluster'], cmap='viridis')
-plt.xlabel('haut_tot')
-plt.title('Clustering K-means (n_clusters={})'.format(n_clusters))
-plt.show()
-
-data["cluster"] = data["cluster"]+1
-
-'''
-'''
 # Charger la carte de Saint Quentin
 map_img = mpimg.imread('saint_quentin_map.png')
 
@@ -244,7 +256,6 @@ plt.legend()
 plt.show()
 
 
-
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃             PREPARATION DE SCRIPT             ┃
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
@@ -253,7 +264,7 @@ plt.show()
 
 
 
-
+'''
 # Transformer une image jpeg en png
 #from PIL import Image
 
