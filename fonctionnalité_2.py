@@ -2,13 +2,14 @@ import pandas as pd
 from numpy import mean
 import matplotlib.pyplot as plt
 from sklearn.linear_model import SGDClassifier
-from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
-from sklearn.preprocessing import OrdinalEncoder, StandardScaler
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV, RandomizedSearchCV
+from sklearn.preprocessing import OrdinalEncoder, StandardScaler, scale
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, precision_score, recall_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import svm, tree
 import pickle
 from sklearn.decomposition import PCA
+import seaborn as sns
 
 
 
@@ -24,9 +25,11 @@ encoder = OrdinalEncoder()
 for colonne in data:
     if data[colonne].dtype.name == 'object':
         data[colonne] = encoder.fit_transform(data[[colonne]])
+"""
 # Sauvegarde de l'encodeur
 with open('ordinal_encoder.pkl', 'wb') as f:
     pickle.dump(encoder, f)
+"""
 
 # Définir des intervalles d'âge dans une nouvelle colonne 'age_group'
 bins = [0, 10, 20, 30, 40, 50, 100, 200]
@@ -83,7 +86,7 @@ with open("models/age_tree.pkl", "wb") as f:
 # -----------------------------
 # |           METRIQUES       |
 # -----------------------------
-
+"""
 # Prédictions
 y_pred_sgd = sgd.predict(X_test)
 y_pred_neigh = neigh.predict(X_test)
@@ -101,12 +104,12 @@ print("Taux SGD : ", score_sgd)
 print("Taux SVM : ", score_svm)
 print("Taux K-neighbor : ", score_neigh)
 print("Taux DecisionTree : ", score_tree)
-
+"""
 
 # ------------------------------
 # |   MATRICE DE CONFUSION     |
 # ------------------------------
-
+"""
 mc_sgd = ConfusionMatrixDisplay.from_predictions(y_test, y_pred_sgd, normalize='true', values_format=".0%")
 plt.title('Matrice de Confusion - SGD')
 plt.show()
@@ -122,7 +125,7 @@ plt.show()
 mc_tree = ConfusionMatrixDisplay.from_predictions(y_test, y_pred_tree, normalize='true', values_format=".0%")
 plt.title('Matrice de Confusion - Decision Tree')
 plt.show()
-
+"""
 
 # -----------------------------
 # |   PRECISION ET RAPPEL     |
@@ -168,19 +171,22 @@ grid_sgd = GridSearchCV(estimator=sgd, param_grid=param_sgd, cv=5, scoring="accu
 grid_sgd.fit(X_train, y_train)
 
 print("Meilleurs paramètres - SGD : ", grid_sgd.best_params_)
+res_sgd = pd.DataFrame(grid_sgd.cv_results_)
+res_sgd.to_csv('GridSearchResults/grid_search_res_sgd.csv', index=False)
 """
 
 # modèle SVM
 """
 param_svm = {
-    'C': [1, 10, 100],
-    'kernel': ['linear', 'poly', 'rbf', 'sigmoid']
+    'C': [10, 100],
+    'kernel': ['linear', 'rbf', 'sigmoid']
 }
-
-grid_svm = GridSearchCV(estimator=svm, param_grid=param_svm, cv=5, scoring="accuracy")
+grid_svm = GridSearchCV(estimator=svm, param_grid=param_svm, cv=3, scoring="accuracy")
 grid_svm.fit(X_train, y_train)
 
 print("Meilleurs paramètres - SVM : ", grid_svm.best_params_)
+res_svm = pd.DataFrame(grid_svm.cv_results_)
+res_svm.to_csv('GridSearchResults/grid_search_res_svm.csv', index=False)
 """
 
 # modèle k-Neighbors
@@ -196,6 +202,8 @@ grid_neigh = GridSearchCV(estimator=neigh, param_grid=param_neigh, cv=5, scoring
 grid_neigh.fit(X_train, y_train)
 
 print("Meilleurs paramètres - KNeighbors : ", grid_neigh.best_params_)
+res_neigh = pd.DataFrame(grid_neigh.cv_results_)
+res_neigh.to_csv('GridSearchResults/grid_search_res_neigh.csv', index=False)
 """
 
 # modèle arbre de décision
@@ -212,4 +220,7 @@ grid_tree = GridSearchCV(estimator=tree, param_grid=param_tree, cv=5, scoring="a
 grid_tree.fit(X_train, y_train)
 
 print("Meilleurs paramètres - DecisionTree : ", grid_tree.best_params_)
+res_tree = pd.DataFrame(grid_tree.cv_results_)
+res_tree.to_csv('GridSearchResults/grid_search_res_tree.csv', index=False)
 """
+

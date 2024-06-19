@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, OrdinalEncoder
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import svm, tree
 import pickle
@@ -24,6 +24,19 @@ def predire_age(values, method):
     else:
         print("Erreur : Il faut entrer 6 arguments")
 
+    # Créer l'instance au bon format
+    arbre = np.array([[data["haut_tot"], data["haut_tronc"], data["tronc_diam"], data["fk_stadedev"], data["nomfrancais"]]])
+
+    # Transformer valeurs catégorielles en numériques
+    with open('ordinal_encoder.pkl', 'rb') as f:
+        encoder = pickle.load(f)
+    arbre[0][3] = encoder.transform([[arbre[0][3]]])[0]
+    arbre[0][4] = encoder.transform([[arbre[0][4]]])[0]
+
+    # Normalisation
+    scaler = StandardScaler()
+    arbre = scaler.fit_transform(arbre)
+
     # Sélection du modèle d'apprentissage
     if method == '0':
         with open("models/age_SGD.pkl", "rb") as f:
@@ -38,15 +51,8 @@ def predire_age(values, method):
         with open("models/age_tree.pkl", "rb") as f:
             model = pickle.load(f)
 
-    # Créer l'instance au bon format
-    arbre = np.array([[int(data["haut_tot"]), int(data["haut_tronc"]), int(data["tronc_diam"]), int(data["fk_stadedev"]), int(data["nomfrancais"])]])
-
-    # Normalisation
-    scaler = StandardScaler()
-    arbre_norm = scaler.fit_transform(arbre)
-
     # Proba de chaque classe
-    classes = model.predict_proba(arbre_norm)
+    classes = model.predict_proba(arbre)
 
     # Créer structure json
     json_data = {}
