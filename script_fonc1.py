@@ -22,15 +22,12 @@ def main():
         'fk_stadedev': [sys.argv[3]],
         'fk_nomtech': [sys.argv[4]]
     }
-    print(new_data)
 
     # Convertir en DataFrame
     new_data_df = pd.DataFrame(new_data)
 
     # Charger les données originales pour obtenir la structure complète
     data = pd.read_csv('Data_Arbre.csv')
-
-    new_data_df.info(max)
 
     # Ajouter les colonnes manquantes avec des valeurs par défaut
     for colonne in data.columns:
