@@ -14,7 +14,7 @@ install("plotly")
 
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import LabelEncoder, OrdinalEncoder
+from sklearn.preprocessing import OrdinalEncoder
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
 import matplotlib.pyplot as plt
@@ -37,15 +37,6 @@ data = data.dropna(subset=['latitude', 'longitude'])
 # Enlever les colonnes inutiles
 data = data.drop(['clc_nbr_diag'],axis=1)
 
-'''
-# Créer le LabelEncoder
-labE = LabelEncoder()
-
-# Appliquer le LabelEncoder à chaque colonne à convertir et convertir object en float64
-for colonne in data:
-    if data[colonne].dtype.name == 'object':
-        data[colonne] = labE.fit_transform(data[colonne].astype(str)).astype('float64')
-'''
 
 # Instancier l'OrdinalEncoder
 encoder = OrdinalEncoder()
@@ -59,11 +50,8 @@ for colonne in data:
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 # Extraire les données d'intérêt pour K-means (toutes les colonnes sauf latitude, longitude et haut_tot)
-#X = data.drop(['latitude', 'longitude', 'clc_secteur', 'fk_prec_estim', 'fk_nomtech'], axis=1).values
-#X = data.drop(['latitude', 'longitude', 'clc_secteur', 'fk_prec_estim', 'clc_quartier', 'haut_tronc', 'fk_arb_etat', 'fk_port', 'fk_pied', 'fk_situation', 'fk_revetement', 'villeca', 'feuillage', 'remarquable', 'age_estim'], axis=1)
-#data_X = data[['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech']]
 X = data[['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech']]
-#data_X.info(max)
+
 #haut_tronc, fk_stadedev, haut_tot, fk_nomtech
 
 # ======================Fonction pour appliquer K-means et afficher les résultats=========================
@@ -196,7 +184,7 @@ metrics_table = pd.DataFrame({
 
 print(metrics_table)
 
-'''
+
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃            VISUALISATION SUR CARTE            ┃
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
@@ -219,31 +207,7 @@ fig = px.scatter_mapbox(data_with_clusters,
 
 # Affichage de la carte interactive
 fig.show()
-'''
 
-'''
-
-mapbox_token = 'your_mapbox_token'
-
-# Utilisation de Plotly Express pour tracer les arbres sur une carte avec Mapbox
-fig = px.scatter_mapbox(data_with_clusters,
-                        lat='latitude',
-                        lon='longitude',
-                        color='cluster',  # Utiliser la colonne 'cluster' pour la couleur
-                        hover_name='nom',  # Nom à afficher au survol
-                        hover_data=['haut_tot'],  # Données supplémentaires au survol
-                        zoom=10,  # Niveau de zoom initial de la carte
-                        mapbox_style='open-street-map',  # Style de la carte Mapbox (open-street-map, carto-positron, etc.)
-                        color_continuous_scale=px.colors.qualitative.Vivid,  # Échelle de couleurs
-                        opacity=0.8,  # Opacité des points
-                        title='Représentation des arbres par clusters')  # Titre de la carte
-
-# Mise à jour du token Mapbox pour afficher la carte
-fig.update_layout(mapbox={'accesstoken': mapbox_token})
-
-# Affichage de la carte interactive
-fig.show()
-'''
 
 '''
 
