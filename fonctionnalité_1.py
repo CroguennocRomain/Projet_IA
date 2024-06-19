@@ -14,9 +14,9 @@ install("plotly")
 
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, OrdinalEncoder
 from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score, normalized_mutual_info_score
+from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
 import matplotlib.pyplot as plt
 import plotly.express as px
 import matplotlib.image as mpimg
@@ -37,6 +37,7 @@ data = data.dropna(subset=['latitude', 'longitude'])
 # Enlever les colonnes inutiles
 data = data.drop(['clc_nbr_diag'],axis=1)
 
+'''
 # Créer le LabelEncoder
 labE = LabelEncoder()
 
@@ -44,40 +45,45 @@ labE = LabelEncoder()
 for colonne in data:
     if data[colonne].dtype.name == 'object':
         data[colonne] = labE.fit_transform(data[colonne].astype(str)).astype('float64')
+'''
 
+# Instancier l'OrdinalEncoder
+encoder = OrdinalEncoder()
+
+for colonne in data:
+    if data[colonne].dtype.name == 'object':
+        data[colonne] = encoder.fit_transform(data[[colonne]])
 
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃          APPRENTISSAGE NON SUPERVISE          ┃
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 # Extraire les données d'intérêt pour K-means (toutes les colonnes sauf latitude, longitude et haut_tot)
-X = data.drop(['latitude', 'longitude', 'haut_tot'], axis=1).values
-#X = data[['latitude', 'longitude']].values  # Latitude et longitude pour les coordonnées
-
-# Extraire les données de la colonne 'haut_tot'
-Y = data['haut_tot'].copy().values  # Copie de la colonne haut_tot pour les couleurs
-
+#X = data.drop(['latitude', 'longitude', 'clc_secteur', 'fk_prec_estim', 'fk_nomtech'], axis=1).values
+#X = data.drop(['latitude', 'longitude', 'clc_secteur', 'fk_prec_estim', 'clc_quartier', 'haut_tronc', 'fk_arb_etat', 'fk_port', 'fk_pied', 'fk_situation', 'fk_revetement', 'villeca', 'feuillage', 'remarquable', 'age_estim'], axis=1)
+#data_X = data[['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech']]
+X = data[['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech']]
+#data_X.info(max)
+#haut_tronc, fk_stadedev, haut_tot, fk_nomtech
 
 # ======================Fonction pour appliquer K-means et afficher les résultats=========================
 def apply_kmeans(data, X, n_clusters):
     # Appliquer K-means
-    kmeans = KMeans(n_clusters=n_clusters, random_state=0)
-    y_pred = kmeans.fit_predict(X)
+    kmeans = KMeans(n_clusters=n_clusters).fit(X)
+    y_pred = kmeans.predict(X)
 
     # Ajouter les labels des clusters au DataFrame original
     data['cluster'] = y_pred
-    data["cluster"] = data["cluster"]+1
+    #data["cluster"] = data["cluster"]+1
 
     # Calcul des métriques de performance
     silhouette_avg = silhouette_score(X, y_pred)
     calinski_harabasz = calinski_harabasz_score(X, y_pred)
     davies_bouldin = davies_bouldin_score(X, y_pred)
-    NMI = normalized_mutual_info_score(Y.astype(np.uint8), y_pred)
 
     print(f"Silhouette Score: {silhouette_avg}"," pire cas = -1 et meilleur cas = 1")
     print(f"Calinski-Harabasz Index: {calinski_harabasz}"," pire cas = score faible et meilleur cas = score élevé")
     print(f"Davies-Bouldin Index: {davies_bouldin}"," pire cas = score élevé et meilleur cas = score faible")
-    print(f"NMI (Normalized Mutual Index): {NMI}"," pire cas = 0 et meilleur cas = 1")
 
     return data, kmeans
 
@@ -122,15 +128,16 @@ plt.title('Méthode du coude pour déterminer le nombre optimal de clusters')
 plt.show()
 
 #====================== créer fichier centroide cluster ================================
-
+'''
 #Save the centroids to a CSV file.
 centroids = kmeans_model.cluster_centers_
+print(centroids)
 def save_centroids(centroids, output_file):
     centroids_df = pd.DataFrame(centroids, columns=[f'feature_{i}' for i in range(centroids.shape[1])])
     centroids_df.to_csv(output_file, index=False)
 
-
-
+save_centroids(centroids, 'centroids.csv')
+'''
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃   METRIQUE POUR APPRENTISSAGE NON SUPERVISE   ┃
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
@@ -146,7 +153,7 @@ davies_bouldin_scores = []
 # Appliquer K-means et calculer les métriques pour chaque nombre de clusters
 for iter_clusters in range_n_clusters:
     kmeans = KMeans(n_clusters=iter_clusters, random_state=0).fit(X)
-    labels = kmeans.labels_
+    labels = kmeans.predict(X)
 
     silhouette_scores.append(silhouette_score(X, labels))
     calinski_harabasz_scores.append(calinski_harabasz_score(X, labels))
@@ -189,7 +196,7 @@ metrics_table = pd.DataFrame({
 
 print(metrics_table)
 
-
+'''
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃            VISUALISATION SUR CARTE            ┃
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
@@ -212,7 +219,7 @@ fig = px.scatter_mapbox(data_with_clusters,
 
 # Affichage de la carte interactive
 fig.show()
-
+'''
 
 '''
 
@@ -247,6 +254,7 @@ plt.show()
 
 data["cluster"] = data["cluster"]+1
 
+'''
 '''
 # Charger la carte de Saint Quentin
 map_img = mpimg.imread('saint_quentin_map.png')
@@ -290,3 +298,5 @@ plt.show()
 
 # Sauvegarder en PNG
 #img.save('saint_quentin_map.png')
+
+'''
