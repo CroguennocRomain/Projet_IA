@@ -42,8 +42,7 @@ for colonne in data:
     if data[colonne].dtype.name == 'object':
         data[colonne] = encoder.fit_transform(data[[colonne]])
 '''
-print(data['fk_stadedev'])
-print(data['fk_nomtech'])
+
 # Sélectionner les colonnes catégorielles
 categorical_columns = [colonne for colonne in data if data[colonne].dtype.name == 'object']
 
@@ -55,15 +54,10 @@ data[categorical_columns] = encoder.fit_transform(data[categorical_columns])
 with open('ordinal_encoder.pkl', 'wb') as file:
     pickle.dump(encoder, file)
 
-data.info(max)
-
 # Enlever les colonnes inutiles
-data = data.drop(['clc_nbr_diag'],axis=1)
+#data = data.drop(['clc_nbr_diag'],axis=1)
 
 
-
-print(data['fk_stadedev'])
-print(data['fk_nomtech'])
 
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃          APPRENTISSAGE NON SUPERVISE          ┃
@@ -266,6 +260,48 @@ plt.show()
 # ┃             PREPARATION DE SCRIPT             ┃
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
+#==============prédire pour une nouvelle ligne le cluster avec model kmean===================
+# Charger l'encodeur depuis le fichier
+with open('ordinal_encoder.pkl', 'rb') as file:
+    encoder = pickle.load(file)
+
+# Nouvelle ligne de données à encoder
+new_data = {
+    'haut_tot': [15],
+    'haut_tronc': [2],
+    'fk_stadedev': ['Adulte'],
+    'fk_nomtech': ['PINNIGnig']
+}
+
+# Convertir en DataFrame
+new_data_df = pd.DataFrame(new_data)
+
+# Charger les données originales pour obtenir la structure complète
+data = pd.read_csv('Data_Arbre.csv')
+
+# Ajouter les colonnes manquantes avec des valeurs par défaut
+for colonne in data.columns:
+    if colonne not in new_data_df.columns:
+        new_data_df[colonne] = data[colonne][0]
+
+# Réorganiser les colonnes pour correspondre à l'ordre des colonnes originales
+new_data_df = new_data_df[data.columns]
+
+# Sélectionner les colonnes catégorielles de la nouvelle ligne de données
+categorical_columns = [colonne for colonne in new_data_df if new_data_df[colonne].dtype == 'object']
+
+# Appliquer l'encodeur sur les colonnes catégorielles de la nouvelle ligne de données
+new_data_df[categorical_columns] = encoder.transform(new_data_df[categorical_columns])
+
+# Sélectionner les colonnes utilisées pour les centroids
+features = ['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech']
+
+# Extraire les colonnes de new_data_df qui correspondent aux features utilisées pour les centroids
+new_data_renamed = new_data_df[features]
+
+# Faire la prédiction pour la nouvelle ligne
+predicted_cluster = kmeans_model.predict(new_data_renamed)
+print(f'La nouvelle ligne appartient au cluster {predicted_cluster[0]}')
 
 
 
