@@ -13,7 +13,7 @@ import pickle
 
 def predire_age(values, method):
     # Charger l'encodeur depuis le fichier
-    with open('ordinal_encoder.pkl', 'rb') as file:
+    with open('OrdinalEncoder/ordinal_encoder2.pkl', 'rb') as file:
         encoder = pickle.load(file)
 
     # Colonnes utilisées lors de l'entraînement du OrdinalEncoder
@@ -64,7 +64,7 @@ def predire_age(values, method):
                  ]
     df = df[norm_cols]
 
-    with open("scaler2.pkl", "rb") as f:
+    with open("Scaler/scaler2.pkl", "rb") as f:
         scaler = pickle.load(f)
     df_norm = scaler.transform(df)
     df_norm = pd.DataFrame(df_norm, columns=norm_cols)

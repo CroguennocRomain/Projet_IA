@@ -29,7 +29,7 @@ for colonne in data:
 
 
 # Sauvegarde de l'encodeur
-with open('ordinal_encoder2.pkl', 'wb') as f:
+with open('OrdinalEncoder/ordinal_encoder2.pkl', 'wb') as f:
     pickle.dump(encoder, f)
 
 
@@ -45,7 +45,7 @@ Y = data['age_group']
 
 scaler = StandardScaler()
 data_norm = scaler.fit_transform(data)
-with open('scaler2.pkl', 'wb') as f:
+with open('Scaler/scaler2.pkl', 'wb') as f:
     pickle.dump(scaler, f)
 
 data_norm = pd.DataFrame(data_norm, columns=data.columns)
