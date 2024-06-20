@@ -163,6 +163,7 @@ y_pred_svm = best_svm.predict(X_test_svm)
 with open('models/svm_model.pkl', 'wb') as file:
     pickle.dump(best_svm, file)
 
+
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃               ANALYSE RESULTATS               ┃
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
