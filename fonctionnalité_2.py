@@ -25,6 +25,8 @@ encoder = OrdinalEncoder()
 for colonne in data:
     if data[colonne].dtype.name == 'object':
         data[colonne] = encoder.fit_transform(data[[colonne]])
+
+
 """
 # Sauvegarde de l'encodeur
 with open('ordinal_encoder.pkl', 'wb') as f:
@@ -37,18 +39,34 @@ labels = [0, 1, 2, 3, 4, 5, 6]
 data['age_group'] = pd.cut(data['age_estim'], bins=bins, labels=labels, right=True)
 data = data.dropna()  # supprimer les lignes NaN
 
+# Normalisation
+Y = data['age_group']
+
+scaler = StandardScaler()
+data_norm = scaler.fit_transform(data)
+with open('scaler2.pkl', 'wb') as f:
+    pickle.dump(scaler, f)
+
+data_norm = pd.DataFrame(data_norm, columns=data.columns)
+data_norm['age_group'] = Y
+
+print(data_norm['age_group'].value_counts())
 # Séparation des features X et des labels y
-X = data[['haut_tot', 'haut_tronc', 'tronc_diam', 'fk_stadedev', 'fk_nomtech']]
-y = data['age_group']
+X = data_norm[['haut_tot', 'haut_tronc', 'tronc_diam', 'fk_stadedev', 'fk_nomtech']]
+y = data_norm[['age_group']]
 
 # Répartition des données : 80% apprentissage, 20% test
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # Normaliser les données
 # Faire en sorte que les données aient une moyenne de 0 et une variance de 1
+"""
 scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
-X_test = scaler.transform(X_test)
+X_test = scaler.fit_transform(X_test)
+with open('normalisation.pkl', 'wb') as f:
+    pickle.dump(scaler, f)
+"""
 
 # -----------------------------
 # |          MODELES          |
@@ -56,6 +74,7 @@ X_test = scaler.transform(X_test)
 #============= Stochastic Gradient Descent (SGD) =================
 
 sgd = SGDClassifier(loss='log_loss', penalty='l1', tol=1e-05)
+#sgd = SGDClassifier()
 sgd.fit(X_train, y_train)
 
 with open("models/age_SGD.pkl", "wb") as f:
@@ -63,6 +82,7 @@ with open("models/age_SGD.pkl", "wb") as f:
 
 #============== k plus proche voisin =============================
 neigh = KNeighborsClassifier(algorithm='brute', n_neighbors=7, p=1, weights='distance')
+#neigh = KNeighborsClassifier()
 neigh.fit(X_train, y_train)
 
 with open("models/age_neigh.pkl", "wb") as f:
@@ -70,6 +90,7 @@ with open("models/age_neigh.pkl", "wb") as f:
 
 #=================== SVM ===================
 svm = svm.SVC(C=100, kernel='rbf', probability=True)
+#svm = svm.SVC()
 svm.fit(X_train, y_train)
 
 with open("models/age_SVM.pkl", "wb") as f:
@@ -77,6 +98,7 @@ with open("models/age_SVM.pkl", "wb") as f:
 
 #========================== arbre de decision ================
 tree = tree.DecisionTreeClassifier(criterion='gini', max_depth=40, min_samples_leaf=1, min_samples_split=2, splitter='best')
+#tree = tree.DecisionTreeClassifier()
 tree.fit(X_train, y_train)
 
 with open("models/age_tree.pkl", "wb") as f:
@@ -86,7 +108,7 @@ with open("models/age_tree.pkl", "wb") as f:
 # -----------------------------
 # |           METRIQUES       |
 # -----------------------------
-"""
+
 # Prédictions
 y_pred_sgd = sgd.predict(X_test)
 y_pred_neigh = neigh.predict(X_test)
@@ -104,12 +126,12 @@ print("Taux SGD : ", score_sgd)
 print("Taux SVM : ", score_svm)
 print("Taux K-neighbor : ", score_neigh)
 print("Taux DecisionTree : ", score_tree)
-"""
+
 
 # ------------------------------
 # |   MATRICE DE CONFUSION     |
 # ------------------------------
-"""
+
 mc_sgd = ConfusionMatrixDisplay.from_predictions(y_test, y_pred_sgd, normalize='true', values_format=".0%")
 plt.title('Matrice de Confusion - SGD')
 plt.show()
@@ -125,14 +147,14 @@ plt.show()
 mc_tree = ConfusionMatrixDisplay.from_predictions(y_test, y_pred_tree, normalize='true', values_format=".0%")
 plt.title('Matrice de Confusion - Decision Tree')
 plt.show()
-"""
+
 
 # -----------------------------
 # |   PRECISION ET RAPPEL     |
 # -----------------------------
 
 # précision de chaque classe
-"""
+
 precision_sgd = precision_score(y_test, y_pred_sgd, average=None, zero_division=1)
 precision_svm = precision_score(y_test, y_pred_svm, average=None, zero_division=1)
 precision_neigh = precision_score(y_test, y_pred_neigh, average=None, zero_division=1)
@@ -153,7 +175,7 @@ print("Rappel SGD: ", rappel_sgd)
 print("Rappel SVM: ", rappel_svm)
 print("Rappel K nearest neighbors: ", rappel_neigh)
 print("Rappel DecisionTree: ", rappel_tree)
-"""
+
 
 # -----------------------------------
 # |     OPTIMISATION PARAMETRES     |
