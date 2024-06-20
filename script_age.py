@@ -13,7 +13,7 @@ import pickle
 
 def predire_age(values, method):
     # Charger l'encodeur depuis le fichier
-    with open('ordinal_encoder.pkl', 'rb') as file:
+    with open('OrdinalEncoder/ordinal_encoder2.pkl', 'rb') as file:
         encoder = pickle.load(file)
 
     # Colonnes utilisées lors de l'entraînement du OrdinalEncoder
@@ -48,27 +48,32 @@ def predire_age(values, method):
     # Encoder les colonnes textuelles en numériques
     df[encoder_cols] = encoder.transform(df[encoder_cols])
 
-    # Supprimer les colonnes qui ne nous intéressent pas
-    df.drop(columns=['clc_quartier', 'clc_secteur', 'fk_arb_etat', 'fk_port',
-                     'fk_pied', 'fk_situation', 'fk_revetement', 'villeca',
-                     'feuillage', 'remarquable'], inplace=True)
+    df['age_group'] = 0
 
-    # Ajouter les colonnes non encodées
+    # Ajouter colonnes pour normalisation
     for col in ['haut_tot', 'haut_tronc', 'tronc_diam']:
         df[col] = data_input[col]
+    for col in ['age_estim', 'clc_nbr_diag', 'fk_prec_estim', 'latitude', 'longitude']:
+        df[col] = 0
 
+    # Réorganiser colonnes
+    norm_cols = ['longitude','latitude','clc_quartier','clc_secteur','haut_tot','haut_tronc',
+                 'tronc_diam','fk_arb_etat','fk_stadedev','fk_port','fk_pied','fk_situation',
+                 'fk_revetement','age_estim','fk_prec_estim','clc_nbr_diag','fk_nomtech','villeca',
+                 'feuillage','remarquable', 'age_group'
+                 ]
+    df = df[norm_cols]
+
+    with open("Scaler/scaler2.pkl", "rb") as f:
+        scaler = pickle.load(f)
+    df_norm = scaler.transform(df)
+    df_norm = pd.DataFrame(df_norm, columns=norm_cols)
 
     # Mettre notre instance à prédire sous le bon format
-    arbre = np.array([[float(df['haut_tot'][0]), float(df['haut_tronc'][0]), float(df['tronc_diam'][0]), float(df['fk_stadedev'][0]), float(df['fk_nomtech'][0])]])
+    arbre = np.array([[float(df_norm['haut_tot'][0]), float(df_norm['haut_tronc'][0]), float(df_norm['tronc_diam'][0]),
+                       float(df_norm['fk_stadedev'][0]), float(df_norm['fk_nomtech'][0])]])
     print(arbre)
 
-    # Normalisation
-    """
-    with open("normalisation.pkl", "rb") as f:
-        scaler = pickle.load(f)
-    df_norm = scaler.fit_transform(df)
-    print(df_norm)
-    """
 
     # Sélection du modèle d'apprentissage
     if method == '0':

@@ -20,17 +20,27 @@ data = pd.read_csv("Data_Arbre.csv")
 # |   PREPARATION DONNEES     |
 # -----------------------------
 
+'''
 # Transformer données catégorielles en numériques
 encoder = OrdinalEncoder()
 for colonne in data:
     if data[colonne].dtype.name == 'object':
         data[colonne] = encoder.fit_transform(data[[colonne]])
+'''
+# Transformer données catégorielles en numériques
+# Sélectionner les colonnes catégorielles
+categorical_columns = [colonne for colonne in data if data[colonne].dtype.name == 'object']
 
-
+# Créer et entraîner l'OrdinalEncoder
+encoder = OrdinalEncoder()
+data[categorical_columns] = encoder.fit_transform(data[categorical_columns])
 
 # Sauvegarde de l'encodeur
-with open('ordinal_encoder2.pkl', 'wb') as f:
+with open('OrdinalEncoder/ordinal_encoder2.pkl', 'wb') as f:
     pickle.dump(encoder, f)
+
+
+
 
 
 # Définir des intervalles d'âge dans une nouvelle colonne 'age_group'
@@ -45,7 +55,7 @@ Y = data['age_group']
 
 scaler = StandardScaler()
 data_norm = scaler.fit_transform(data)
-with open('scaler2.pkl', 'wb') as f:
+with open('Scaler/scaler2.pkl', 'wb') as f:
     pickle.dump(scaler, f)
 
 data_norm = pd.DataFrame(data_norm, columns=data.columns)

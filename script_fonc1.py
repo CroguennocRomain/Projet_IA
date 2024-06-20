@@ -12,7 +12,7 @@ def main():
         sys.exit(1)
 
     # Charger l'encodeur depuis le fichier
-    with open('ordinal_encoder1.pkl', 'rb') as file:
+    with open('OrdinalEncoder/ordinal_encoder1.pkl', 'rb') as file:
         encoder = pickle.load(file)
 
     # Nouvelle ligne de données à encoder
@@ -43,6 +43,11 @@ def main():
     # Appliquer l'encodeur sur les colonnes catégorielles de la nouvelle ligne de données
     new_data_df[categorical_columns] = encoder.transform(new_data_df[categorical_columns])
 
+    with open("Scaler/scaler1.pkl", "rb") as file:
+        scaler = pickle.load(file)
+    new_data_df = scaler.transform(new_data_df)
+    new_data_df = pd.DataFrame(new_data_df, columns=data.columns)
+
     # Charger les centroids
     centroids_data = pd.read_csv('centroids.csv')
 
@@ -59,6 +64,8 @@ def main():
     # Attribuer le cluster correspondant au centroid le plus proche
     closest_centroid = np.argmin(distances)
     print(f'La nouvelle ligne appartient au cluster {closest_centroid}')
+
+    return json.dumps(int(closest_centroid))
 
 if __name__ == '__main__':
     main()
