@@ -65,6 +65,8 @@ def main():
     closest_centroid = np.argmin(distances)
     print(f'La nouvelle ligne appartient au cluster {closest_centroid}')
 
+    return json.dumps(closest_centroid)
+
 if __name__ == '__main__':
     main()
 

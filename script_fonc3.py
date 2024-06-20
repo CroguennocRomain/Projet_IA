@@ -23,7 +23,6 @@ def predire_tempete(method):
         }
         new_data_df = pd.DataFrame(new_data)
 
-
         for colonne in data.columns:
             if colonne not in new_data_df.columns:
                 new_data_df[colonne] = data[colonne][0]
@@ -38,22 +37,12 @@ def predire_tempete(method):
         # Appliquer l'encodeur sur les colonnes catégorielles de la nouvelle ligne de données
         new_data_df[categorical_columns] = encoder.transform(new_data_df[categorical_columns])
 
-        data['fk_arb_etat'] = data['fk_arb_etat'].replace({
-            'Essouché': 1,
-            'EN PLACE': 0,
-            'SUPPRIMÉ': 0,
-            'Non essouché': 1,
-            'REMPLACÉ': 0,
-            'ABATTU': 0
-        })
-
-
 
         X = new_data_df[["haut_tronc","latitude","longitude",'fk_stadedev','haut_tot','clc_secteur']]
 
         with open('Scaler/scaler3.pkl', 'rb') as file:
             model = pickle.load(file)
-        X = model.fit_transform(X)
+        X = model.transform(X)
         print(X)
         model_filename = 'models/rf_model.pkl'
     elif method == '1' and len(sys.argv) == 6:
@@ -77,19 +66,12 @@ def predire_tempete(method):
         # Appliquer l'encodeur sur les colonnes catégorielles de la nouvelle ligne de données
         new_data_df[categorical_columns] = encoder.transform(new_data_df[categorical_columns])
 
-        data['fk_arb_etat'] = data['fk_arb_etat'].replace({
-            'Essouché': 1,
-            'EN PLACE': 0,
-            'SUPPRIMÉ': 0,
-            'Non essouché': 1,
-            'REMPLACÉ': 0,
-            'ABATTU': 0
-        })
+
         X = new_data_df[["latitude","longitude","clc_secteur",'fk_port']]
 
         with open('Scaler/scaler3.pkl', 'rb') as file:
             model = pickle.load(file)
-        X = model.fit_transform(X)
+        X = model.transform(X)
 
         model_filename = 'models/knn_model.pkl'
     elif method == '2' and len(sys.argv) == 3:
@@ -110,18 +92,12 @@ def predire_tempete(method):
         # Appliquer l'encodeur sur les colonnes catégorielles de la nouvelle ligne de données
         new_data_df[categorical_columns] = encoder.transform(new_data_df[categorical_columns])
 
-        data['fk_arb_etat'] = data['fk_arb_etat'].replace({
-            'Essouché': 1,
-            'EN PLACE': 0,
-            'SUPPRIMÉ': 0,
-            'Non essouché': 1,
-            'REMPLACÉ': 0,
-            'ABATTU': 0
-        })
+
         X = new_data_df[['age_estim']]
+
         with open('Scaler/scaler3.pkl', 'rb') as file:
             model = pickle.load(file)
-        X = model.fit_transform(X)
+        X = model.transform(X)
 
         model_filename = 'models/svm_model.pkl'
     else:

@@ -33,14 +33,27 @@ data['fk_arb_etat'] = data['fk_arb_etat'].replace({
     'REMPLACÉ': 0,
     'ABATTU': 0
 })
-
+'''
 encoder = OrdinalEncoder()
 
 for colonne in data:
     if data[colonne].dtype.name == 'object':
         data[colonne] = encoder.fit_transform(data[[colonne]])
+'''
 
+# Transformer données catégorielles en numériques
+# Sélectionner les colonnes catégorielles
+categorical_columns = [colonne for colonne in data if data[colonne].dtype.name == 'object']
 
+# Créer et entraîner l'OrdinalEncoder
+encoder = OrdinalEncoder()
+data[categorical_columns] = encoder.fit_transform(data[categorical_columns])
+
+# Sauvegarde de l'encodeur
+with open('OrdinalEncoder/ordinal_encoder3.pkl', 'wb') as f:
+    pickle.dump(encoder, f)
+
+# Normalisation
 Y = data['fk_arb_etat']
 
 scaler = StandardScaler()
