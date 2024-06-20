@@ -15,7 +15,7 @@ install("plotly")
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import OrdinalEncoder, StandardScaler
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
 import matplotlib.pyplot as plt
 import plotly.express as px
@@ -88,11 +88,33 @@ def apply_kmeans(data_norm, X, n_clusters):
     calinski_harabasz = calinski_harabasz_score(X, y_pred)
     davies_bouldin = davies_bouldin_score(X, y_pred)
 
+    print("K-mean method pour n_clusters = ", n_clusters)
     print(f"Silhouette Score: {silhouette_avg}"," pire cas = -1 et meilleur cas = 1")
     print(f"Calinski-Harabasz Index: {calinski_harabasz}"," pire cas = score faible et meilleur cas = score élevé")
     print(f"Davies-Bouldin Index: {davies_bouldin}"," pire cas = score élevé et meilleur cas = score faible")
 
     return data_norm, kmeans
+
+# ======================Fonction pour appliquer agglomerative_clustering et afficher les résultats=========================
+def apply_agglomerative_clustering(data_norm, X, n_clusters):
+    # Appliquer l'Agglomerative Clustering
+    agg_clustering = AgglomerativeClustering(n_clusters=n_clusters).fit(X)
+    y_pred = agg_clustering.labels_
+
+    # Ajouter les labels des clusters au DataFrame original
+    data_norm['cluster'] = y_pred
+
+    # Calcul des métriques de performance
+    silhouette_avg = silhouette_score(X, y_pred)
+    calinski_harabasz = calinski_harabasz_score(X, y_pred)
+    davies_bouldin = davies_bouldin_score(X, y_pred)
+
+    print(" Agglomerative_clustering method pour n_clusters = ", n_clusters)
+    print(f"Silhouette Score: {silhouette_avg} (pire cas = -1 et meilleur cas = 1)")
+    print(f"Calinski-Harabasz Index: {calinski_harabasz} (pire cas = score faible et meilleur cas = score élevé)")
+    print(f"Davies-Bouldin Index: {davies_bouldin} (pire cas = score élevé et meilleur cas = score faible)")
+
+    return data_norm, agg_clustering
 
 # Spécifier le nombre de clusters
 def demander_nombre_clusters():
@@ -112,10 +134,16 @@ print(f"Nombre de clusters sélectionné: {n_clusters}")
 
 # Appliquer K-means
 data_with_clusters, kmeans_model = apply_kmeans(data_norm.copy(), X, n_clusters)
+# Appliquer Agglomerative Clustering
+data_agglo_cluster_method, agg_clustering = apply_agglomerative_clustering(data_norm.copy(), X, n_clusters)
+
+
 
 # Afficher les résultats
 print(data_with_clusters)
 print(data_with_clusters['cluster'].value_counts())
+print(data_agglo_cluster_method)
+print(data_agglo_cluster_method['cluster'].value_counts())
 
 # =====================test nombre de cluster==========================
 # Déterminer l'inertie pour différents nombres de clusters
@@ -185,6 +213,7 @@ centroids_df.to_csv('centroids.csv', index=False)
 # ┃   METRIQUE POUR APPRENTISSAGE NON SUPERVISE   ┃
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
+#========================K-means methode============================
 # Définir la plage de nombre de clusters à tester
 range_n_clusters = range(2, 11)  # On commence à 2 clusters car 1 cluster n'a pas de sens pour les métriques
 
@@ -238,6 +267,51 @@ metrics_table = pd.DataFrame({
 })
 
 print(metrics_table)
+
+
+#========================Agglomerative Clustering methode============================
+# Initialiser les listes pour stocker les scores des différentes métriques
+silhouette_scores = []
+calinski_harabasz_scores = []
+davies_bouldin_scores = []
+
+# Appliquer K-means et calculer les métriques pour chaque nombre de clusters
+for iter_clusters in range_n_clusters:
+    agg_clustering = AgglomerativeClustering(n_clusters=iter_clusters).fit(X)
+    labels = agg_clustering.labels_
+
+    silhouette_scores.append(silhouette_score(X, labels))
+    calinski_harabasz_scores.append(calinski_harabasz_score(X, labels))
+    davies_bouldin_scores.append(davies_bouldin_score(X, labels))
+
+# Tracer les scores des différentes métriques
+plt.figure(figsize=(16, 5))
+
+# Tracé du coefficient de silhouette
+plt.subplot(1, 3, 1)
+plt.plot(range_n_clusters, silhouette_scores, marker='o')
+plt.xlabel('Nombre de clusters')
+plt.ylabel('Coefficient de silhouette')
+plt.title('Coefficient de silhouette')
+
+# Tracé de l'indice de Calinski-Harabasz
+plt.subplot(1, 3, 2)
+plt.plot(range_n_clusters, calinski_harabasz_scores, marker='o')
+plt.xlabel('Nombre de clusters')
+plt.ylabel('Indice de Calinski-Harabasz')
+plt.title('Indice de Calinski-Harabasz')
+
+# Tracé de l'indice de Davies-Bouldin
+plt.subplot(1, 3, 3)
+plt.plot(range_n_clusters, davies_bouldin_scores, marker='o')
+plt.xlabel('Nombre de clusters')
+plt.ylabel('Indice de Davies-Bouldin')
+plt.title('Indice de Davies-Bouldin')
+
+plt.tight_layout()
+plt.show()
+
+
 
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃            VISUALISATION SUR CARTE            ┃
