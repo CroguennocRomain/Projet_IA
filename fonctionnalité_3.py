@@ -8,7 +8,7 @@ from sklearn.preprocessing import StandardScaler, OrdinalEncoder
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import r2_score,accuracy_score,classification_report, confusion_matrix, roc_curve, auc
+from sklearn.metrics import r2_score,accuracy_score,classification_report, roc_curve, auc
 import matplotlib.pyplot as plt
 from sklearn.svm import SVC
 from sklearn.model_selection import GridSearchCV
@@ -42,9 +42,8 @@ for colonne in data:
 
 #data.info(max)
 # X ET Y POUR RANDOM FOREST
-X_rf = data[["haut_tronc","latitude","longitude",'fk_stadedev','haut_tot','clc_secteur']]
 y = data['fk_arb_etat']
-
+X_rf = data[["haut_tronc","latitude","longitude",'fk_stadedev','haut_tot','clc_secteur']]
 # X ET Y POUR KNN
 X_knn = data[["latitude","longitude","clc_secteur",'fk_port']]
 
