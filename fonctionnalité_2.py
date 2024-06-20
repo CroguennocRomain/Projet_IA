@@ -27,17 +27,18 @@ for colonne in data:
         data[colonne] = encoder.fit_transform(data[[colonne]])
 
 
-"""
+
 # Sauvegarde de l'encodeur
-with open('ordinal_encoder.pkl', 'wb') as f:
+with open('ordinal_encoder2.pkl', 'wb') as f:
     pickle.dump(encoder, f)
-"""
+
 
 # Définir des intervalles d'âge dans une nouvelle colonne 'age_group'
-bins = [0, 10, 20, 30, 40, 50, 100, 200]
+bins = [-1, 10, 20, 30, 40, 50, 100, 200]
 labels = [0, 1, 2, 3, 4, 5, 6]
 data['age_group'] = pd.cut(data['age_estim'], bins=bins, labels=labels, right=True)
 data = data.dropna()  # supprimer les lignes NaN
+data['age_group'] = data['age_group'].astype(int)
 
 # Normalisation
 Y = data['age_group']
@@ -50,10 +51,10 @@ with open('scaler2.pkl', 'wb') as f:
 data_norm = pd.DataFrame(data_norm, columns=data.columns)
 data_norm['age_group'] = Y
 
-print(data_norm['age_group'].value_counts())
+
 # Séparation des features X et des labels y
 X = data_norm[['haut_tot', 'haut_tronc', 'tronc_diam', 'fk_stadedev', 'fk_nomtech']]
-y = data_norm[['age_group']]
+y = data_norm['age_group']
 
 # Répartition des données : 80% apprentissage, 20% test
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)

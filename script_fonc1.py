@@ -12,7 +12,7 @@ def main():
         sys.exit(1)
 
     # Charger l'encodeur depuis le fichier
-    with open('ordinal_encoder.pkl', 'rb') as file:
+    with open('ordinal_encoder1.pkl', 'rb') as file:
         encoder = pickle.load(file)
 
     # Nouvelle ligne de données à encoder

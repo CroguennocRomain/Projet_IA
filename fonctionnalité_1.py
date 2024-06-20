@@ -14,7 +14,7 @@ install("plotly")
 
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import OrdinalEncoder
+from sklearn.preprocessing import OrdinalEncoder, StandardScaler
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
 import matplotlib.pyplot as plt
@@ -23,6 +23,7 @@ import matplotlib.image as mpimg
 import pickle
 
 data = pd.read_csv('Data_Arbre.csv')
+data_original = data.copy()
 
 '''
 # Assurer que les colonnes 'latitude' et 'longitude' sont de type float et ne contiennent pas de valeurs manquantes
@@ -51,12 +52,32 @@ encoder = OrdinalEncoder()
 data[categorical_columns] = encoder.fit_transform(data[categorical_columns])
 
 # Enregistrer l'encodeur dans un fichier
-with open('ordinal_encoder.pkl', 'wb') as file:
+with open('ordinal_encoder1.pkl', 'wb') as file:
     pickle.dump(encoder, file)
 
+# numériser les données
+
+Y = data['haut_tot']
+
+scaler = StandardScaler()
+print(data)
+data_norm = scaler.fit_transform(data)
+print(data_norm)
+data_norm = pd.DataFrame(data_norm, columns=data.columns)
+print(data_norm)
+print(data_norm['haut_tot'])
+data_norm['haut_tot'] = Y
+print(data_norm)
+print(data_norm['haut_tot'])
+
+print(data_norm['haut_tot'].value_counts())
+
+with open('models/scaler1.pkl', 'wb') as file:
+    pickle.dump(scaler, file)
+
+print(data['fk_nomtech'])
 # Enlever les colonnes inutiles
 #data = data.drop(['clc_nbr_diag'],axis=1)
-
 
 
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -65,6 +86,7 @@ with open('ordinal_encoder.pkl', 'wb') as file:
 
 # Extraire les données d'intérêt pour K-means (toutes les colonnes sauf latitude, longitude et haut_tot)
 X = data[['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech']]
+
 
 #haut_tronc, fk_stadedev, haut_tot, fk_nomtech
 
@@ -134,11 +156,29 @@ plt.show()
 #Save the centroids to a CSV file.
 centroids = kmeans_model.cluster_centers_
 print(centroids)
-def save_centroids(centroids, output_file):
-    centroids_df = pd.DataFrame(centroids, columns=[f'feature_{i}' for i in range(centroids.shape[1])])
-    centroids_df.to_csv(output_file, index=False)
 
-save_centroids(centroids, 'centroids.csv')
+centroids_df = pd.DataFrame(centroids, columns=[f'feature_{i}' for i in range(centroids.shape[1])])
+'''
+#swap les centroids et les valeur de cluster associé
+
+# Trouver la valeur maximale de la colonne
+max_value = centroids_df['colonne'].max()
+
+# Trouver la dernière valeur de la colonne
+last_value = centroids_df['colonne'].iloc[-1]
+
+# Vérifier si la valeur maximale est supérieure à la dernière valeur
+if max_value > last_value:
+# Trouver l'index de la valeur maximale
+    max_index = centroids_df['colonne'].idxmax()
+    
+    # Échanger les valeurs
+    centroids_df.at[max_index, 'colonne'] = last_value
+    centroids_df.at[centroids_df.index[-1], 'colonne'] = max_value
+'''
+
+centroids_df.to_csv('centroids.csv', index=False)
+
 
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃   METRIQUE POUR APPRENTISSAGE NON SUPERVISE   ┃
@@ -267,9 +307,9 @@ with open('ordinal_encoder.pkl', 'rb') as file:
 
 # Nouvelle ligne de données à encoder
 new_data = {
-    'haut_tot': [15],
-    'haut_tronc': [2],
-    'fk_stadedev': ['Adulte'],
+    'haut_tot': [5.1],
+    'haut_tronc': [2.1],
+    'fk_stadedev': ['Jeune'],
     'fk_nomtech': ['PINNIGnig']
 }
 
@@ -298,12 +338,95 @@ features = ['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech']
 
 # Extraire les colonnes de new_data_df qui correspondent aux features utilisées pour les centroids
 new_data_renamed = new_data_df[features]
+print(new_data_renamed)
+new_data_renamed = scaler.transform(new_data_renamed)
+print(new_data_renamed)
 
 # Faire la prédiction pour la nouvelle ligne
 predicted_cluster = kmeans_model.predict(new_data_renamed)
 print(f'La nouvelle ligne appartient au cluster {predicted_cluster[0]}')
 
 
+new_data = {
+    'haut_tot': [35.1],
+    'haut_tronc': [12.1],
+    'fk_stadedev': ['senescent'],
+    'fk_nomtech': ['PINNIGnig']
+}
+
+# Convertir en DataFrame
+new_data_df = pd.DataFrame(new_data)
+
+# Charger les données originales pour obtenir la structure complète
+data = pd.read_csv('Data_Arbre.csv')
+
+# Ajouter les colonnes manquantes avec des valeurs par défaut
+for colonne in data.columns:
+    if colonne not in new_data_df.columns:
+        new_data_df[colonne] = data[colonne][0]
+
+# Réorganiser les colonnes pour correspondre à l'ordre des colonnes originales
+new_data_df = new_data_df[data.columns]
+
+# Sélectionner les colonnes catégorielles de la nouvelle ligne de données
+categorical_columns = [colonne for colonne in new_data_df if new_data_df[colonne].dtype == 'object']
+
+# Appliquer l'encodeur sur les colonnes catégorielles de la nouvelle ligne de données
+new_data_df[categorical_columns] = encoder.transform(new_data_df[categorical_columns])
+
+# Sélectionner les colonnes utilisées pour les centroids
+features = ['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech']
+
+# Extraire les colonnes de new_data_df qui correspondent aux features utilisées pour les centroids
+new_data_renamed = new_data_df[features]
+print(new_data_renamed)
+new_data_renamed = scaler.transform(new_data_renamed)
+print(new_data_renamed)
+
+# Faire la prédiction pour la nouvelle ligne
+predicted_cluster = kmeans_model.predict(new_data_renamed)
+print(f'La nouvelle ligne appartient au cluster {predicted_cluster[0]}')
+
+
+new_data = {
+    'haut_tot': [35.1],
+    'haut_tronc': [12.1],
+    'fk_stadedev': ['senescent'],
+    'fk_nomtech': ['ACEPLA']
+}
+
+# Convertir en DataFrame
+new_data_df = pd.DataFrame(new_data)
+
+# Charger les données originales pour obtenir la structure complète
+data = pd.read_csv('Data_Arbre.csv')
+
+# Ajouter les colonnes manquantes avec des valeurs par défaut
+for colonne in data.columns:
+    if colonne not in new_data_df.columns:
+        new_data_df[colonne] = data[colonne][0]
+
+# Réorganiser les colonnes pour correspondre à l'ordre des colonnes originales
+new_data_df = new_data_df[data.columns]
+
+# Sélectionner les colonnes catégorielles de la nouvelle ligne de données
+categorical_columns = [colonne for colonne in new_data_df if new_data_df[colonne].dtype == 'object']
+
+# Appliquer l'encodeur sur les colonnes catégorielles de la nouvelle ligne de données
+new_data_df[categorical_columns] = encoder.transform(new_data_df[categorical_columns])
+
+# Sélectionner les colonnes utilisées pour les centroids
+features = ['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech']
+
+# Extraire les colonnes de new_data_df qui correspondent aux features utilisées pour les centroids
+new_data_renamed = new_data_df[features]
+print(new_data_renamed)
+new_data_renamed = scaler.transform(new_data_renamed)
+print(new_data_renamed)
+
+# Faire la prédiction pour la nouvelle ligne
+predicted_cluster = kmeans_model.predict(new_data_renamed)
+print(f'La nouvelle ligne appartient au cluster {predicted_cluster[0]}')
 
 
 '''
