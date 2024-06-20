@@ -32,7 +32,7 @@ def predire_tempete(method):
 
         # Sélectionner les colonnes catégorielles de la nouvelle ligne de données
         categorical_columns = [colonne for colonne in new_data_df if new_data_df[colonne].dtype == 'object']
-        with open('ordinal_encoder.pkl', 'rb') as file:
+        with open('OrdinalEncoder/ordinal_encoder3.pkl', 'rb') as file:
             encoder = pickle.load(file)
 
         # Appliquer l'encodeur sur les colonnes catégorielles de la nouvelle ligne de données
@@ -51,7 +51,7 @@ def predire_tempete(method):
 
         X = new_data_df[["haut_tronc","latitude","longitude",'fk_stadedev','haut_tot','clc_secteur']]
 
-        with open('models/scaler.pkl', 'rb') as file:
+        with open('Scaler/scaler3.pkl', 'rb') as file:
             model = pickle.load(file)
         X = model.fit_transform(X)
         print(X)
@@ -72,7 +72,7 @@ def predire_tempete(method):
         # Sélectionner les colonnes catégorielles de la nouvelle ligne de données
         categorical_columns = [colonne for colonne in new_data_df if new_data_df[colonne].dtype == 'object']
 
-        with open('ordinal_encoder.pkl', 'rb') as file:
+        with open('OrdinalEncoder/ordinal_encoder3.pkl', 'rb') as file:
             encoder = pickle.load(file)
         # Appliquer l'encodeur sur les colonnes catégorielles de la nouvelle ligne de données
         new_data_df[categorical_columns] = encoder.transform(new_data_df[categorical_columns])
@@ -87,7 +87,7 @@ def predire_tempete(method):
         })
         X = new_data_df[["latitude","longitude","clc_secteur",'fk_port']]
 
-        with open('models/scaler.pkl', 'rb') as file:
+        with open('Scaler/scaler3.pkl', 'rb') as file:
             model = pickle.load(file)
         X = model.fit_transform(X)
 
@@ -105,7 +105,7 @@ def predire_tempete(method):
         # Sélectionner les colonnes catégorielles de la nouvelle ligne de données
         categorical_columns = [colonne for colonne in new_data_df if new_data_df[colonne].dtype == 'object']
 
-        with open('ordinal_encoder.pkl', 'rb') as file:
+        with open('OrdinalEncoder/ordinal_encoder3.pkl', 'rb') as file:
             encoder = pickle.load(file)
         # Appliquer l'encodeur sur les colonnes catégorielles de la nouvelle ligne de données
         new_data_df[categorical_columns] = encoder.transform(new_data_df[categorical_columns])
@@ -119,7 +119,7 @@ def predire_tempete(method):
             'ABATTU': 0
         })
         X = new_data_df[['age_estim']]
-        with open('models/scaler.pkl', 'rb') as file:
+        with open('Scaler/scaler3.pkl', 'rb') as file:
             model = pickle.load(file)
         X = model.fit_transform(X)
 

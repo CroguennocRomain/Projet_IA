@@ -40,25 +40,29 @@ for colonne in data:
     if data[colonne].dtype.name == 'object':
         data[colonne] = encoder.fit_transform(data[[colonne]])
 
+
+Y = data['fk_arb_etat']
+
+scaler = StandardScaler()
+data_norm = scaler.fit_transform(data)
+with open('Scaler/scaler3.pkl', 'wb') as f:
+    pickle.dump(scaler, f)
+
+data_norm = pd.DataFrame(data_norm, columns=data.columns)
+data_norm['fk_arb_etat'] = Y
+
+
 #data.info(max)
 # X ET Y POUR RANDOM FOREST
-y = data['fk_arb_etat']
-X_rf = data[["haut_tronc","latitude","longitude",'fk_stadedev','haut_tot','clc_secteur']]
+y = data_norm['fk_arb_etat']
+X_rf = data_norm[["haut_tronc","latitude","longitude",'fk_stadedev','haut_tot','clc_secteur']]
 # X ET Y POUR KNN
-X_knn = data[["latitude","longitude","clc_secteur",'fk_port']]
+X_knn = data_norm[["latitude","longitude","clc_secteur",'fk_port']]
 
 
 # X ET Y POUR SVM
-X_svm = data[['age_estim']]
+X_svm = data_norm[['haut_tot','fk_revetement']]
 
-scaler = StandardScaler()
-
-X_rf = scaler.fit_transform(X_rf)
-X_knn = scaler.fit_transform(X_knn)
-X_svm = scaler.fit_transform(X_svm)
-
-with open('models/scaler.pkl', 'wb') as file:
-    pickle.dump(scaler, file)
 
 X_train_rf, X_test_rf, y_train_rf, y_test_rf = train_test_split(X_rf, y, test_size=0.2, random_state=42)
 X_train_knn, X_test_knn, y_train_knn, y_test_knn = train_test_split(X_knn, y, test_size=0.2, random_state=42)
@@ -91,29 +95,14 @@ best_rf.fit(X_train_rf, y_train_rf)
 # Prédiction sur l'ensemble de test
 y_pred_rf = best_rf.predict(X_test_rf)
 
-"""# Évaluation des performances
-accuracy = accuracy_score(y_test_rf, y_pred_rf)
-print(f'Accuracy : {accuracy:.2f}')
-report = classification_report(y_test_rf, y_pred_rf)
-print(report)"""
-
 with open('models/rf_model.pkl', 'wb') as file:
     pickle.dump(best_rf, file)
-
-"""model_1 = RandomForestClassifier(n_estimators=1000, random_state=42)
-model_1.fit(X_train_rf, y_train_rf)
-
-with open('models/rf_model.pkl', 'wb') as file:
-    pickle.dump(model_1, file)
-
-#with open('models/rf_model.pkl', 'rb') as file:
-#        model_1 = pickle.load(file)
-y_pred_rf = model_1.predict(X_test_rf)"""
 
 
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃                APPRENTISSAGE 2                ┃
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+"""
 param_grid_knn = {
     'n_neighbors': [3, 5, 7, 9],
     'weights': ['uniform', 'distance'],
@@ -130,15 +119,7 @@ y_pred_knn = best_knn.predict(X_test_knn)
 with open('models/knn_model.pkl', 'wb') as file:
     pickle.dump(best_knn, file)
 
-
-"""model_2 = KNeighborsClassifier(n_neighbors=5)
-model_2.fit(X_train_knn, y_train_knn)
-with open('models/knn_model.pkl', 'wb') as file:
-    pickle.dump(model_2, file)
-
-with open('models/knn_model.pkl', 'rb') as file:
-    model_2 = pickle.load(file)
-y_pred_knn = model_2.predict(X_test_knn)"""
+"""
 
 
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -160,22 +141,14 @@ best_svm.fit(X_train_svm, y_train_svm)
 y_pred_svm = best_svm.predict(X_test_svm)
 with open('models/svm_model.pkl', 'wb') as file:
     pickle.dump(best_svm, file)
-"""model_3 = SVC(probability=True, random_state=42)
-model_3.fit(X_train_svm, y_train_svm)
 
-with open('models/svm_model.pkl', 'wb') as file:
-    pickle.dump(model_3, file)
-
-with open('models/svm_model.pkl', 'rb') as file:
-    model_3 = pickle.load(file)
-y_pred_svm = model_3.predict(X_test_svm)"""
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃               ANALYSE RESULTATS               ┃
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 
 #------------------- Rapport de classification------------------
-accuracy = accuracy_score(y_test_rf, y_pred_rf)
+"""accuracy = accuracy_score(y_test_rf, y_pred_rf)
 print(f'Accuracy RF : {accuracy:.2f}')
 report = classification_report(y_test_rf, y_pred_rf, zero_division=0)
 print(report)
@@ -184,27 +157,30 @@ accuracy = accuracy_score(y_test_knn, y_pred_knn)
 print(f'Accuracy KNN : {accuracy:.2f}')
 report = classification_report(y_test_knn, y_pred_knn, zero_division=0)
 print(report)
+
 accuracy = accuracy_score(y_test_svm, y_pred_svm)
 print(f'Accuracy SVM : {accuracy:.2f}')
 report = classification_report(y_test_svm, y_pred_svm, zero_division=0)
-print(report)
+print(report)"""
 
 
 
-
+"""
 score_1 = best_rf.score(X_test_rf, y_test_rf)
 score_2 = best_knn.score(X_test_knn, y_test_knn)
 score_3 = best_svm.score(X_test_svm, y_test_svm)
 print('score 1 :', score_1)
 print('score 2 :', score_2)
 print('score 3 :', score_3)
+"""
 
 
+"""
 print('----------------')
 print(r2_score(y_test_rf, y_pred_rf))
 print(r2_score(y_test_knn, y_pred_knn))
 print(r2_score(y_test_svm, y_pred_svm))
-
+"""
 #---------------- Matrice de confusion----------------------
 conf_matrix = confusion_matrix(y_test_rf, y_pred_rf)
 print(conf_matrix)
@@ -217,7 +193,7 @@ plt.ylabel('Vérité terrain')
 plt.title('Matrice de Confusion')
 plt.show()
 
-conf_matrix = confusion_matrix(y_test_knn, y_pred_knn)
+"""conf_matrix = confusion_matrix(y_test_knn, y_pred_knn)
 print(conf_matrix)
 
 # Affichage de la matrice de confusion
@@ -227,7 +203,7 @@ plt.xlabel('Prédiction')
 plt.ylabel('Vérité terrain')
 plt.title('Matrice de Confusion')
 plt.show()
-
+"""
 conf_matrix = confusion_matrix(y_test_svm, y_pred_svm)
 print(conf_matrix)
 
@@ -239,7 +215,7 @@ plt.ylabel('Vérité terrain')
 plt.title('Matrice de Confusion')
 plt.show()
 y_pred_proba_rf = best_rf.predict_proba(X_test_rf)[:, 1]
-y_pred_proba_knn = best_knn.predict_proba(X_test_knn)[:, 1]
+"""y_pred_proba_knn = best_knn.predict_proba(X_test_knn)[:, 1]"""
 y_pred_proba_svm = best_svm.predict_proba(X_test_svm)[:, 1]
 #------------------------Courbe ROC---------------------------
 fpr, tpr, thresholds = roc_curve(y_test_rf, y_pred_proba_rf)
@@ -256,7 +232,7 @@ plt.title('Courbe ROC')
 plt.legend(loc="lower right")
 plt.show()
 
-fpr, tpr, thresholds = roc_curve(y_test_knn, y_pred_proba_knn)
+"""fpr, tpr, thresholds = roc_curve(y_test_knn, y_pred_proba_knn)
 roc_auc = auc(fpr, tpr)
 
 plt.figure(figsize=(8, 6))
@@ -269,7 +245,7 @@ plt.ylabel('Taux de vrais positifs (TPR)')
 plt.title('Courbe ROC')
 plt.legend(loc="lower right")
 plt.show()
-
+"""
 
 fpr, tpr, thresholds = roc_curve(y_test_svm, y_pred_proba_svm)
 roc_auc = auc(fpr, tpr)
