@@ -57,22 +57,12 @@ with open('OrdinalEncoder/ordinal_encoder1.pkl', 'wb') as file:
 
 # numériser les données
 
-#X = data['longitude']
-#Y = data['latitude']
-
 scaler = StandardScaler()
 data_norm = scaler.fit_transform(data)
 data_norm = pd.DataFrame(data_norm, columns=data.columns)
 
 with open('Scaler/scaler1.pkl', 'wb') as file:
     pickle.dump(scaler, file)
-
-#data_norm['longitude'] = X
-#data_norm['latitude'] = Y
-
-# Enlever les colonnes inutiles
-#data = data.drop(['clc_nbr_diag'],axis=1)
-
 
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃          APPRENTISSAGE NON SUPERVISE          ┃
@@ -151,24 +141,42 @@ centroids = kmeans_model.cluster_centers_
 print(centroids)
 
 centroids_df = pd.DataFrame(centroids, columns=[f'feature_{i}' for i in range(centroids.shape[1])])
-'''
+
+
 #swap les centroids et les valeur de cluster associé
+# Boucle pour échanger les valeurs entre l'index 0 et les autres indices
+for i in range(len(centroids_df['feature_0']) - 1):
+    # Trouver la valeur maximale de la colonne entre l'index 0 et l'index len(centroids_df['feature_0'])-1 - i
+    max_value = centroids_df['feature_0'][:len(centroids_df['feature_0']) - 1 - i].max()
 
-# Trouver la valeur maximale de la colonne
-max_value = centroids_df['colonne'].max()
+    # Trouver la dernière valeur de la colonne pour l'index len(centroids_df['feature_0'])-1 - i
+    last_value = centroids_df['feature_0'].iloc[-1 - i]
+    print(last_value, max_value)
 
-# Trouver la dernière valeur de la colonne
-last_value = centroids_df['colonne'].iloc[-1]
+    # Vérifier si la valeur maximale est supérieure à la dernière valeur
+    if max_value > last_value:
+        # Trouver l'index de la valeur maximale
+        max_index = centroids_df['feature_0'][:len(centroids_df['feature_0']) - 1 - i].idxmax()
+        print(centroids_df.index[-1 - i], max_index)
 
-# Vérifier si la valeur maximale est supérieure à la dernière valeur
-if max_value > last_value:
-# Trouver l'index de la valeur maximale
-    max_index = centroids_df['colonne'].idxmax()
-    
-    # Échanger les valeurs
-    centroids_df.at[max_index, 'colonne'] = last_value
-    centroids_df.at[centroids_df.index[-1], 'colonne'] = max_value
-'''
+        # Échanger les lignes complètes dans centroids_df
+        max_row = centroids_df.iloc[max_index].copy()
+        last_row = centroids_df.iloc[centroids_df.index[-1 - i]].copy()
+
+        centroids_df.iloc[max_index] = last_row
+        centroids_df.iloc[centroids_df.index[-1 - i]] = max_row
+
+        # Échanger les valeurs de cluster dans data_with_clusters
+        data_with_clusters['cluster'] = data_with_clusters['cluster'].replace(
+            {max_index: centroids_df.index[-1 - i], centroids_df.index[-1 - i]: max_index})
+
+# Afficher les DataFrames modifiés
+print("Centroids DataFrame après échange :")
+print(centroids_df)
+
+print("\nData_with_clusters DataFrame après échange des clusters :")
+print(data_with_clusters)
+
 
 centroids_df.to_csv('centroids.csv', index=False)
 
@@ -328,17 +336,14 @@ categorical_columns = [colonne for colonne in new_data_df if new_data_df[colonne
 new_data_df[categorical_columns] = encoder.transform(new_data_df[categorical_columns])
 
 # appliquer normalisation
-print(new_data_df)
 new_data_df = scaler.transform(new_data_df)
 new_data_df = pd.DataFrame(new_data_df, columns=data.columns)
-print(new_data_df)
 
 # Sélectionner les colonnes utilisées pour les centroids
 features = ['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech']
 
 # Extraire les colonnes de new_data_df qui correspondent aux features utilisées pour les centroids
 new_data_renamed = new_data_df[features]
-print(new_data_renamed)
 
 # Faire la prédiction pour la nouvelle ligne
 predicted_cluster = kmeans_model.predict(new_data_renamed)
@@ -373,17 +378,14 @@ categorical_columns = [colonne for colonne in new_data_df if new_data_df[colonne
 new_data_df[categorical_columns] = encoder.transform(new_data_df[categorical_columns])
 
 # appliquer normalisation
-print(new_data_df)
 new_data_df = scaler.transform(new_data_df)
 new_data_df = pd.DataFrame(new_data_df, columns=data.columns)
-print(new_data_df)
 
 # Sélectionner les colonnes utilisées pour les centroids
 features = ['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech']
 
 # Extraire les colonnes de new_data_df qui correspondent aux features utilisées pour les centroids
 new_data_renamed = new_data_df[features]
-print(new_data_renamed)
 
 # Faire la prédiction pour la nouvelle ligne
 predicted_cluster = kmeans_model.predict(new_data_renamed)
@@ -418,17 +420,14 @@ categorical_columns = [colonne for colonne in new_data_df if new_data_df[colonne
 new_data_df[categorical_columns] = encoder.transform(new_data_df[categorical_columns])
 
 # appliquer normalisation
-print(new_data_df)
 new_data_df = scaler.transform(new_data_df)
 new_data_df = pd.DataFrame(new_data_df, columns=data.columns)
-print(new_data_df)
 
 # Sélectionner les colonnes utilisées pour les centroids
 features = ['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech']
 
 # Extraire les colonnes de new_data_df qui correspondent aux features utilisées pour les centroids
 new_data_renamed = new_data_df[features]
-print(new_data_renamed)
 
 # Faire la prédiction pour la nouvelle ligne
 predicted_cluster = kmeans_model.predict(new_data_renamed)
