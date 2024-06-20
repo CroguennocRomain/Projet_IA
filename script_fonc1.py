@@ -7,6 +7,7 @@ from sklearn.preprocessing import OrdinalEncoder
 import pickle
 
 def main():
+    #vérifier qu'il y a bien le bon nombre d'argument
     if len(sys.argv) != 5:
         print('Usage: python script_fonc1.py <haut_tot> <haut_tronc> <fk_stadedev> <fk_nomtech> ----> Exemple: python script_fonc1.py 15.1 2.1 "Adulte" "PINNIGnig"')
         sys.exit(1)
@@ -37,12 +38,13 @@ def main():
     # Réorganiser les colonnes pour correspondre à l'ordre des colonnes originales
     new_data_df = new_data_df[data.columns]
 
-    # Sélectionner les colonnes catégorielles de la nouvelle ligne de données
+    # Sélectionner les colonnes de la nouvelle ligne de données
     categorical_columns = [colonne for colonne in new_data_df if new_data_df[colonne].dtype == 'object']
 
-    # Appliquer l'encodeur sur les colonnes catégorielles de la nouvelle ligne de données
+    # Appliquer l'encodeur sur les colonnes sélectionnées de la nouvelle ligne de données
     new_data_df[categorical_columns] = encoder.transform(new_data_df[categorical_columns])
 
+    # Charger le scaler depuis le fichier (pour normaliser)
     with open("Scaler/scaler1.pkl", "rb") as file:
         scaler = pickle.load(file)
     new_data_df = scaler.transform(new_data_df)
@@ -65,6 +67,7 @@ def main():
     closest_centroid = np.argmin(distances)
     print(f'La nouvelle ligne appartient au cluster {closest_centroid}')
 
+    # renvoyer un fichier JSON contenant le cluster auquel apartient la nouvelle ligne
     return json.dumps(int(closest_centroid))
 
 if __name__ == '__main__':

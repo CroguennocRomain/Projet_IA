@@ -44,10 +44,10 @@ for colonne in data:
         data[colonne] = encoder.fit_transform(data[[colonne]])
 '''
 
-# Sélectionner les colonnes catégorielles
+# Sélectionner les colonnes
 categorical_columns = [colonne for colonne in data if data[colonne].dtype.name == 'object']
 
-# Créer et entraîner l'OrdinalEncoder
+# Créer et utiliser l'OrdinalEncoder
 encoder = OrdinalEncoder()
 data[categorical_columns] = encoder.fit_transform(data[categorical_columns])
 
@@ -68,11 +68,9 @@ with open('Scaler/scaler1.pkl', 'wb') as file:
 # ┃          APPRENTISSAGE NON SUPERVISE          ┃
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-# Extraire les données d'intérêt pour K-means (toutes les colonnes sauf latitude, longitude et haut_tot)
+# Extraire les données d'intérêt pour K-means
 X = data_norm[['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech']]
 
-
-#haut_tronc, fk_stadedev, haut_tot, fk_nomtech
 
 # ======================Fonction pour appliquer K-means et afficher les résultats=========================
 def apply_kmeans(data_norm, X, n_clusters):
@@ -148,7 +146,7 @@ print(data_agglo_cluster_method['cluster'].value_counts())
 # =====================test nombre de cluster==========================
 # Déterminer l'inertie pour différents nombres de clusters
 inertia = []
-range_n_clusters = range(2, 11)  # Essayer de 1 à 10 clusters
+range_n_clusters = range(2, 11)  # Essayer de 2 à 10 clusters
 
 for iter_clusters in range_n_clusters:
     kmeans = KMeans(n_clusters=iter_clusters, random_state=0).fit(X)
@@ -164,14 +162,14 @@ plt.show()
 
 #====================== créer fichier centroide cluster ================================
 
-#Save the centroids to a CSV file.
+# obtenir les centroids.
 centroids = kmeans_model.cluster_centers_
 print(centroids)
 
 centroids_df = pd.DataFrame(centroids, columns=[f'feature_{i}' for i in range(centroids.shape[1])])
 
 
-#swap les centroids et les valeur de cluster associé
+#swap les centroids et les valeur de cluster associé pour que le cluster 0 ait le plus petit centroids pour 'haut_tot' et que le cluster 6 ait le plus grand
 # Boucle pour échanger les valeurs entre l'index 0 et les autres indices
 for i in range(len(centroids_df['feature_0']) - 1):
     # Trouver la valeur maximale de la colonne entre l'index 0 et l'index len(centroids_df['feature_0'])-1 - i
@@ -275,7 +273,7 @@ silhouette_scores = []
 calinski_harabasz_scores = []
 davies_bouldin_scores = []
 
-# Appliquer K-means et calculer les métriques pour chaque nombre de clusters
+# Appliquer Agglomerative_Clustering et calculer les métriques pour chaque nombre de clusters
 for iter_clusters in range_n_clusters:
     agg_clustering = AgglomerativeClustering(n_clusters=iter_clusters).fit(X)
     labels = agg_clustering.labels_
@@ -311,12 +309,11 @@ plt.title('Indice de Davies-Bouldin')
 plt.tight_layout()
 plt.show()
 
-
-
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃            VISUALISATION SUR CARTE            ┃
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
+#mettre les clusters sous forme textuel
 data_with_clusters['cluster'] = data_with_clusters['cluster'].astype(str)
 data_with_clusters_non_norm = data_original
 data_with_clusters_non_norm['cluster'] = data_with_clusters['cluster']
@@ -345,11 +342,11 @@ fig.show()
 # Charger la carte de Saint Quentin
 map_img = mpimg.imread('saint_quentin_map.png')
 
-# Définir les limites de la carte (ajuster en fonction de votre image et données)
+# Définir les limites de la carte (ajusté en fonction de l'image et des données de longitude et latitude)
 min_lat, max_lat = 49.82, 49.871
 min_lon, max_lon = 3.2375, 3.325
 
-# Assurez-vous que la colonne 'cluster' est convertie en chaîne de caractères
+# Convertir les clusters en int
 data_with_clusters_non_norm['cluster'] = data_with_clusters_non_norm['cluster'].astype(int)
 
 # Définir le nombre de clusters
@@ -403,10 +400,10 @@ for colonne in data.columns:
 # Réorganiser les colonnes pour correspondre à l'ordre des colonnes originales
 new_data_df = new_data_df[data.columns]
 
-# Sélectionner les colonnes catégorielles de la nouvelle ligne de données
+# Sélectionner les colonnes de la nouvelle ligne de données
 categorical_columns = [colonne for colonne in new_data_df if new_data_df[colonne].dtype == 'object']
 
-# Appliquer l'encodeur sur les colonnes catégorielles de la nouvelle ligne de données
+# Appliquer l'encodeur sur les colonnes sélectionnées de la nouvelle ligne de données
 new_data_df[categorical_columns] = encoder.transform(new_data_df[categorical_columns])
 
 # appliquer normalisation
@@ -445,10 +442,10 @@ for colonne in data.columns:
 # Réorganiser les colonnes pour correspondre à l'ordre des colonnes originales
 new_data_df = new_data_df[data.columns]
 
-# Sélectionner les colonnes catégorielles de la nouvelle ligne de données
+# Sélectionner les colonnes de la nouvelle ligne de données
 categorical_columns = [colonne for colonne in new_data_df if new_data_df[colonne].dtype == 'object']
 
-# Appliquer l'encodeur sur les colonnes catégorielles de la nouvelle ligne de données
+# Appliquer l'encodeur sur les colonnes sélectionnées de la nouvelle ligne de données
 new_data_df[categorical_columns] = encoder.transform(new_data_df[categorical_columns])
 
 # appliquer normalisation
@@ -487,10 +484,10 @@ for colonne in data.columns:
 # Réorganiser les colonnes pour correspondre à l'ordre des colonnes originales
 new_data_df = new_data_df[data.columns]
 
-# Sélectionner les colonnes catégorielles de la nouvelle ligne de données
+# Sélectionner les colonnes de la nouvelle ligne de données
 categorical_columns = [colonne for colonne in new_data_df if new_data_df[colonne].dtype == 'object']
 
-# Appliquer l'encodeur sur les colonnes catégorielles de la nouvelle ligne de données
+# Appliquer l'encodeur sur les colonnes sélectionnées de la nouvelle ligne de données
 new_data_df[categorical_columns] = encoder.transform(new_data_df[categorical_columns])
 
 # appliquer normalisation
