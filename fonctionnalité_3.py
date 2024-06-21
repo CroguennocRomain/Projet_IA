@@ -144,7 +144,7 @@ param_grid_svm = {
 }
 
 # GridSearchCV pour trouver les meilleurs hyperparamètres
-svm = SVC(probability=True)
+svm = SVC(probability=True,random_state=42)
 grid_search_svm = GridSearchCV(estimator=svm, param_grid=param_grid_svm, scoring='accuracy', cv=5, n_jobs=-1)
 grid_search_svm.fit(X_train_svm, y_train_svm)
 
