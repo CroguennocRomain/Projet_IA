@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV, RandomizedSearchCV
 from sklearn.preprocessing import OrdinalEncoder, StandardScaler, scale
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, precision_score, recall_score, accuracy_score
+from sklearn.metrics import ConfusionMatrixDisplay, precision_score, recall_score, accuracy_score, f1_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import svm, tree
 import pickle
@@ -188,6 +188,17 @@ print("Rappel SVM: ", rappel_svm)
 print("Rappel K nearest neighbors: ", rappel_neigh)
 print("Rappel DecisionTree: ", rappel_tree)
 
+# f1score de chaque classe
+f1_sgd = f1_score(y_test, y_pred_sgd, average=None, zero_division=1)
+f1_svm = f1_score(y_test, y_pred_svm, average=None, zero_division=1)
+f1_neigh = f1_score(y_test, y_pred_neigh, average=None, zero_division=1)
+f1_tree = f1_score(y_test, y_pred_tree, average=None, zero_division=1)
+
+print("F1-Score SGD: ", f1_sgd)
+print("F1-Score SVM: ", f1_svm)
+print("F1-Score K nearest neighbors: ", f1_neigh)
+print("F1-Score DecisionTree: ", f1_tree)
+
 
 # -----------------------------------
 # |     OPTIMISATION PARAMETRES     |
@@ -229,7 +240,7 @@ param_neigh = {
     'n_neighbors': [3, 5, 7, 9],
     'weights': ['uniform', 'distance'],
     'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute'],
-    'p': [1, 2]  # 1 for Manhattan distance, 2 for Euclidean distance
+    'p': [1, 2]
 }
 
 grid_neigh = GridSearchCV(estimator=neigh, param_grid=param_neigh, cv=5, scoring="accuracy")
