@@ -23,6 +23,8 @@ def predire_tempete(method):
         }
         new_data_df = pd.DataFrame(new_data)
 
+        new_data_df['fk_arb_etat'] = 1
+
         for colonne in data.columns:
             if colonne not in new_data_df.columns:
                 new_data_df[colonne] = data[colonne][0]
@@ -37,13 +39,14 @@ def predire_tempete(method):
         # Appliquer l'encodeur sur les colonnes catégorielles de la nouvelle ligne de données
         new_data_df[categorical_columns] = encoder.transform(new_data_df[categorical_columns])
 
+        # Charger le scaler depuis le fichier (pour normaliser)
+        with open("Scaler/scaler3.pkl", "rb") as file:
+            scaler = pickle.load(file)
+        new_data_df = scaler.transform(new_data_df)
+        new_data_df = pd.DataFrame(new_data_df, columns=data.columns)
 
         X = new_data_df[["haut_tronc","latitude","longitude",'fk_stadedev','haut_tot','clc_secteur']]
 
-        with open('Scaler/scaler3.pkl', 'rb') as file:
-            model = pickle.load(file)
-        X = model.transform(X)
-        print(X)
         model_filename = 'models/rf_model.pkl'
     elif method == '1' and len(sys.argv) == 6:
         new_data = {
@@ -52,7 +55,11 @@ def predire_tempete(method):
             'clc_secteur': [sys.argv[3]],
             'fk_port': [sys.argv[4]]
         }
+
         new_data_df = pd.DataFrame(new_data)
+
+        new_data_df['fk_arb_etat'] = 1
+
         for colonne in data.columns:
             if colonne not in new_data_df.columns:
                 new_data_df[colonne] = data[colonne][0]
@@ -66,12 +73,13 @@ def predire_tempete(method):
         # Appliquer l'encodeur sur les colonnes catégorielles de la nouvelle ligne de données
         new_data_df[categorical_columns] = encoder.transform(new_data_df[categorical_columns])
 
+        # Charger le scaler depuis le fichier (pour normaliser)
+        with open("Scaler/scaler3.pkl", "rb") as file:
+            scaler = pickle.load(file)
+        new_data_df = scaler.transform(new_data_df)
+        new_data_df = pd.DataFrame(new_data_df, columns=data.columns)
 
         X = new_data_df[["latitude","longitude","clc_secteur",'fk_port']]
-
-        with open('Scaler/scaler3.pkl', 'rb') as file:
-            model = pickle.load(file)
-        X = model.transform(X)
 
         model_filename = 'models/knn_model.pkl'
     elif method == '2' and len(sys.argv) == 3:
@@ -79,6 +87,9 @@ def predire_tempete(method):
             'age_estim': [float(sys.argv[1])]
         }
         new_data_df = pd.DataFrame(new_data)
+
+        new_data_df['fk_arb_etat'] = 1
+
         for colonne in data.columns:
             if colonne not in new_data_df.columns:
                 new_data_df[colonne] = data[colonne][0]
@@ -92,12 +103,13 @@ def predire_tempete(method):
         # Appliquer l'encodeur sur les colonnes catégorielles de la nouvelle ligne de données
         new_data_df[categorical_columns] = encoder.transform(new_data_df[categorical_columns])
 
+        # Charger le scaler depuis le fichier (pour normaliser)
+        with open("Scaler/scaler3.pkl", "rb") as file:
+            scaler = pickle.load(file)
+        new_data_df = scaler.transform(new_data_df)
+        new_data_df = pd.DataFrame(new_data_df, columns=data.columns)
 
         X = new_data_df[['age_estim']]
-
-        with open('Scaler/scaler3.pkl', 'rb') as file:
-            model = pickle.load(file)
-        X = model.transform(X)
 
         model_filename = 'models/svm_model.pkl'
     else:
@@ -111,7 +123,7 @@ def predire_tempete(method):
     res = y_pred.tolist()
     json_data = json.dumps(res)
 
-    with open('JSON/script2_result.json', 'w') as f:
+    with open('JSON/script3_result.json', 'w') as f:
         json.dump(res, f)
 
     return json_data
