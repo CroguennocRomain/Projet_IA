@@ -16,7 +16,7 @@ Usage : python script_fonc1.py <haut_tot> <haut_tronc> <fk_stadedev> <fk_nomtech
 Exemple : python script_fonc1.py 15.1 2.1 "Adulte" "PINNIGnig" "Conifère"
 
 
-- script_age.py --> script pour la seconde fonctionnalité pour prédire à quel groupe d'âge un arbre appartient.
+- script_fonc2.py --> script pour la seconde fonctionnalité pour prédire à quel groupe d'âge un arbre appartient.
 
 Le script prend en entrée une valeur pour chaque features et pour la méthode choisie : "haut_tot", "haut_tronc", "tronc_diam", "fk_stadedev", "fk_nomtech".
     - méthode 0 (age_SGD).
@@ -25,13 +25,13 @@ Le script prend en entrée une valeur pour chaque features et pour la méthode c
     - méthode 3 (age_tree).
 Et retourne un fichier JSON et crée un fichier JSON "script2_result.json" contenant un tableau récapitulatif entre la classe (groupe d'âge) et la probabilité que l'arbre donné appartient à cette même classe
 
-Avant d'exécuter le fichier "script_age.py", s'il n'y a pas de fichier "ordinal_encoder2.pkl" ou "scaler2.pkl" ou "models/age_neigh.pkl" ou "models/age_SGD.pkl" ou "models/age_SVM.pkl" ou "models/age_tree.pkl"
+Avant d'exécuter le fichier "script_fonc2.py", s'il n'y a pas de fichier "ordinal_encoder2.pkl" ou "scaler2.pkl" ou "models/age_neigh.pkl" ou "models/age_SGD.pkl" ou "models/age_SVM.pkl" ou "models/age_tree.pkl"
 Ou si vous souhaitez voir les scores et métriques du model d'apprentissage
 Vous devez exécuter le fichier "fonctionnalité_2.py"
 
 Son exécution dans le terminal se fait sous cette forme :
-Usage : python script_age.py <haut_tot> <haut_tronc> <tronc_diam> <fk_stadedev> <fk_nomtech> <numéro_method>
-Exemple : python script_age.py 15.1 2.1 2.5 "Adulte" "PINNIGnig" 3
+Usage : python script_fonc2.py <haut_tot> <haut_tronc> <tronc_diam> <fk_stadedev> <fk_nomtech> <numéro_method>
+Exemple : python script_fonc2.py 15.1 2.1 2.5 "Adulte" "PINNIGnig" 3
 
 
 - script_fonc3.py --> script pour la troisième fonctionnalité pour prédire si un arbre est susceptible d'être déraciné en cas de tempête.
