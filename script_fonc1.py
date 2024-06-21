@@ -8,7 +8,7 @@ import pickle
 
 def main():
     #vérifier qu'il y a bien le bon nombre d'argument
-    if len(sys.argv) != 5:
+    if len(sys.argv) != 6:
         print('Usage: python script_fonc1.py <haut_tot> <haut_tronc> <fk_stadedev> <fk_nomtech> ----> Exemple: python script_fonc1.py 15.1 2.1 "Adulte" "PINNIGnig"')
         sys.exit(1)
 
@@ -21,7 +21,9 @@ def main():
         'haut_tot': [float(sys.argv[1])],
         'haut_tronc': [float(sys.argv[2])],
         'fk_stadedev': [sys.argv[3]],
-        'fk_nomtech': [sys.argv[4]]
+        'fk_nomtech': [sys.argv[4]],
+        'feuillage': [sys.argv[5]]
+
     }
 
     # Convertir en DataFrame
@@ -57,7 +59,7 @@ def main():
     features = [f'feature_{i}' for i in range(centroids_data.shape[1])]
 
     # Extraire les colonnes de new_data_df qui correspondent aux features utilisées pour les centroids
-    new_data_renamed = new_data_df[['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech']]
+    new_data_renamed = new_data_df[['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech', 'feuillage']]
     new_data_renamed.columns = features
 
     # Calculer la distance euclidienne entre la nouvelle ligne et chaque centroid

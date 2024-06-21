@@ -69,7 +69,7 @@ with open('Scaler/scaler1.pkl', 'wb') as file:
 # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
 # Extraire les données d'intérêt pour K-means
-X = data_norm[['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech']]
+X = data_norm[['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech', 'feuillage']]
 
 
 # ======================Fonction pour appliquer K-means et afficher les résultats=========================
@@ -118,11 +118,11 @@ def apply_agglomerative_clustering(data_norm, X, n_clusters):
 def demander_nombre_clusters():
     while True:
         try:
-            n_clusters = int(input("Veuillez entrer un nombre de clusters entre 2 et 10: "))
-            if 2 <= n_clusters <= 10:
+            n_clusters = int(input("Veuillez entrer un nombre de clusters entre 2 et 15: "))
+            if 2 <= n_clusters <= 15:
                 return n_clusters
             else:
-                print("Le nombre de clusters doit être entre 2 et 10.")
+                print("Le nombre de clusters doit être entre 2 et 15.")
         except ValueError:
             print("Veuillez entrer un nombre entier valide.")
 
@@ -146,7 +146,7 @@ print(data_agglo_cluster_method['cluster'].value_counts())
 # =====================test nombre de cluster==========================
 # Déterminer l'inertie pour différents nombres de clusters
 inertia = []
-range_n_clusters = range(2, 11)  # Essayer de 2 à 10 clusters
+range_n_clusters = range(2, 16)  # Essayer de 2 à 15 clusters
 
 for iter_clusters in range_n_clusters:
     kmeans = KMeans(n_clusters=iter_clusters, random_state=0).fit(X)
@@ -213,7 +213,7 @@ centroids_df.to_csv('centroids.csv', index=False)
 
 #========================K-means methode============================
 # Définir la plage de nombre de clusters à tester
-range_n_clusters = range(2, 11)  # On commence à 2 clusters car 1 cluster n'a pas de sens pour les métriques
+range_n_clusters = range(2, 16)  # On commence à 2 clusters car 1 cluster n'a pas de sens pour les métriques
 
 # Initialiser les listes pour stocker les scores des différentes métriques
 silhouette_scores = []
@@ -327,7 +327,7 @@ fig = px.scatter_mapbox(data_with_clusters_non_norm,
                         lon='longitude',
                         color='cluster',  # Utiliser la colonne 'cluster' pour la couleur
                         hover_name='fk_nomtech',  # Nom à afficher au survol
-                        hover_data=['haut_tot','haut_tronc','fk_stadedev'],  # Données supplémentaires au survol
+                        hover_data=['haut_tot','haut_tronc','fk_stadedev', 'feuillage'],  # Données supplémentaires au survol
                         zoom=10,  # Niveau de zoom initial de la carte
                         mapbox_style='open-street-map',  # Utiliser le style de carte OpenStreetMap
                         color_discrete_sequence=custom_colors,  # Utiliser la palette de couleurs personnalisée
@@ -383,7 +383,8 @@ new_data = {
     'haut_tot': [5.1],
     'haut_tronc': [2.1],
     'fk_stadedev': ['Jeune'],
-    'fk_nomtech': ['PINNIGnig']
+    'fk_nomtech': ['PINNIGnig'],
+    'feuillage': ['Conifère']
 }
 
 # Convertir en DataFrame
@@ -411,7 +412,7 @@ new_data_df = scaler.transform(new_data_df)
 new_data_df = pd.DataFrame(new_data_df, columns=data.columns)
 
 # Sélectionner les colonnes utilisées pour les centroids
-features = ['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech']
+features = ['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech', 'feuillage']
 
 # Extraire les colonnes de new_data_df qui correspondent aux features utilisées pour les centroids
 new_data_renamed = new_data_df[features]
@@ -425,7 +426,8 @@ new_data = {
     'haut_tot': [15.1],
     'haut_tronc': [2.1],
     'fk_stadedev': ['Jeune'],
-    'fk_nomtech': ['ACEPLA']
+    'fk_nomtech': ['ACEPLA'],
+    'feuillage': ['Feuillu']
 }
 
 # Convertir en DataFrame
@@ -453,7 +455,7 @@ new_data_df = scaler.transform(new_data_df)
 new_data_df = pd.DataFrame(new_data_df, columns=data.columns)
 
 # Sélectionner les colonnes utilisées pour les centroids
-features = ['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech']
+features = ['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech', 'feuillage']
 
 # Extraire les colonnes de new_data_df qui correspondent aux features utilisées pour les centroids
 new_data_renamed = new_data_df[features]
@@ -467,7 +469,8 @@ new_data = {
     'haut_tot': [35.1],
     'haut_tronc': [12.1],
     'fk_stadedev': ['senescent'],
-    'fk_nomtech': ['ACEPLA']
+    'fk_nomtech': ['ACEPLA'],
+    'feuillage': ['Feuillu']
 }
 
 # Convertir en DataFrame
@@ -495,7 +498,7 @@ new_data_df = scaler.transform(new_data_df)
 new_data_df = pd.DataFrame(new_data_df, columns=data.columns)
 
 # Sélectionner les colonnes utilisées pour les centroids
-features = ['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech']
+features = ['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech', 'feuillage']
 
 # Extraire les colonnes de new_data_df qui correspondent aux features utilisées pour les centroids
 new_data_renamed = new_data_df[features]
