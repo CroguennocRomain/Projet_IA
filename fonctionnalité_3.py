@@ -35,7 +35,7 @@ data['fk_arb_etat'] = data['fk_arb_etat'].replace({
     'REMPLACÉ': 0,
     'ABATTU': 0
 })
-data.info(max)
+
 # Encodage des variables catégorielles
 encoder = OrdinalEncoder()
 for colonne in data:
