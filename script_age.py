@@ -100,6 +100,9 @@ def predire_age(values, method):
     json_data['41-50'] = classes[0][4]
     json_data['51-100'] = classes[0][5]
     json_data['101-200'] = classes[0][6]
+
+    with open('JSON/script2_result.json', 'w') as json_file:
+        json.dump(json_data, json_file)
     
     # Renvoie les données en format json
     return json.dumps(json_data)

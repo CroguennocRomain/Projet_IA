@@ -9,7 +9,7 @@ import pickle
 def main():
     #vérifier qu'il y a bien le bon nombre d'argument
     if len(sys.argv) != 6:
-        print('Usage: python script_fonc1.py <haut_tot> <haut_tronc> <fk_stadedev> <fk_nomtech> ----> Exemple: python script_fonc1.py 15.1 2.1 "Adulte" "PINNIGnig"')
+        print('Usage: python script_fonc1.py <haut_tot> <haut_tronc> <fk_stadedev> <fk_nomtech> <feuillage> ----> Exemple: python script_fonc1.py 15.1 2.1 "Adulte" "PINNIGnig" "Conifère"')
         sys.exit(1)
 
     # Charger l'encodeur depuis le fichier
@@ -68,6 +68,10 @@ def main():
     # Attribuer le cluster correspondant au centroid le plus proche
     closest_centroid = np.argmin(distances)
     print(f'La nouvelle ligne appartient au cluster {closest_centroid}')
+
+    # Renvoyer un fichier JSON contenant le cluster auquel appartient la nouvelle ligne
+    with open('JSON/script1_result.json', 'w') as f:
+        json.dump(int(closest_centroid), f)
 
     # renvoyer un fichier JSON contenant le cluster auquel apartient la nouvelle ligne
     return json.dumps(int(closest_centroid))
