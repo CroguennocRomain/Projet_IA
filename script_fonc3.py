@@ -111,6 +111,9 @@ def predire_tempete(method):
     res = y_pred.tolist()
     json_data = json.dumps(res)
 
+    with open('JSON/script2_result.json', 'w') as f:
+        json.dump(res, f)
+
     return json_data
 
 
@@ -118,6 +121,7 @@ def main():
     method = sys.argv[-1]
     tempete = predire_tempete(method)
     print(tempete)
+    return tempete
 
 
 if __name__ == "__main__":

@@ -69,6 +69,10 @@ def main():
     closest_centroid = np.argmin(distances)
     print(f'La nouvelle ligne appartient au cluster {closest_centroid}')
 
+    # Renvoyer un fichier JSON contenant le cluster auquel appartient la nouvelle ligne
+    with open('JSON/script1_result.json', 'w') as f:
+        json.dump(int(closest_centroid), f)
+
     # renvoyer un fichier JSON contenant le cluster auquel apartient la nouvelle ligne
     return json.dumps(int(closest_centroid))
 
