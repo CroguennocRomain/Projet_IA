@@ -120,7 +120,7 @@ def predire_tempete(method):
         new_data_df = pd.DataFrame(new_data_df, columns=data.columns)
 
         # Sélectionner les colonnes nécessaires pour le modèle
-        X = new_data_df[['haut_tot','fk_revetement']]
+        X = new_data_df[['haut_tot', 'fk_revetement']]
 
         model_filename = 'models/svm_model.pkl'
     else:

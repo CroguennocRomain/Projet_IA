@@ -5,7 +5,7 @@ Nous avons 3 script.py, 1 par fonctionnalité :
 - "script_fonc1.py" --> script pour la première fonctionnalité pour prédire à quel cluster de taille totale appartient un arbre.
 
 Le script prend en entrée une valeur pour chaque features : "haut_tot", "haut_tronc", "fk_stadedev", "fk_nomtech", "feuillage".
-Et retourne un fichier JSON contenant le numéro du cluster auquel appartient l'arbre
+Et retourne un fichier JSON et crée un fichier JSON "script1_result.json" contenant le numéro du cluster auquel appartient l'arbre
 
 Avant d'executer le fichier "script_fonc1.py", s'il n'y a pas de fichier "centroids.csv" ou "ordinal_encoder1.pkl" ou "scaler1.pkl"
 Ou si vous souhaitez voir les scores et métriques du model d'apprentissage
@@ -23,7 +23,7 @@ Le script prend en entrée une valeur pour chaque features et pour la méthode c
     - méthode 1 (age_neigh).
     - méthode 2 (age_SVM).
     - méthode 3 (age_tree).
-Et retourne un fichier JSON contenant un tableau récapitulatif entre la classe (groupe d'âge) et la probabilité que l'arbre donné appartient à cette même classe
+Et retourne un fichier JSON et crée un fichier JSON "script2_result.json" contenant un tableau récapitulatif entre la classe (groupe d'âge) et la probabilité que l'arbre donné appartient à cette même classe
 
 Avant d'executer le fichier "script_age.py", s'il n'y a pas de fichier "ordinal_encoder2.pkl" ou "scaler2.pkl" ou "models/age_neigh.pkl" ou "models/age_SGD.pkl" ou "models/age_SVM.pkl" ou "models/age_tree.pkl"
 Ou si vous souhaitez voir les scores et métriques du model d'apprentissage
@@ -40,7 +40,7 @@ Le script prend en entrée une valeurs pour la méthode choisie et une valeur po
     - méthode 0 (rf_model) : "haut_tronc", "latitude", "longitude", "fk_stadedev", "haut_tot", "clc_secteur".
     - méthode 1 (knn_model) : "latitude", "longitude", "clc_secteur", "fk_port".
     - méthode 2 (svm_model) : haut_tot", "fk_revetement".
-#Et retourne un fichier JSON contenant le numéro du cluster auquel appartient l'arbre
+#Et retourne un fichier JSON et crée un fichier JSON "script3_result.json" contenant le numéro du cluster auquel appartient l'arbre
 
 Avant d'executer le fichier "script_fonc3.py", s'il n'y a pas de fichier "ordinal_encoder3.pkl" ou "scaler3.pkl" ou "models/knn_model.pkl" ou "models/rf_model.pkl" ou "models/svm_model.pkl"
 Ou si vous souhaitez voir les scores et métriques du model d'apprentissage
@@ -49,5 +49,5 @@ Vous devez executer le fichier "fonctionnalité_3.py"
 Son éxecution dans le terminal se fait sous cette forme :
     - méthode 0 (rf_model) : Usage: python script_fonc3.py <haut_tronc> <latitude> <longitude> <fk_stadedev> <haut_tot> <clc_secteur> <numéro_method>.
     - méthode 1 (knn_model) : Usage: python script_fonc3.py <latitude> <longitude> <clc_secteur> <fk_port> <numéro_method>.
-    - méthode 2 (svm_model) : Usage: python script_fonc3.py <age_estim> <numéro_method>.
+    - méthode 2 (svm_model) : Usage: python script_fonc3.py <haut_tot> <fk_revetement> <numéro_method>.
 Exemple: python script_fonc3.py 49.84050020512298 3.2932636093638927 "Rue de Paris" "réduit relâché" 1
