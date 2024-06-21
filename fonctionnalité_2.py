@@ -13,24 +13,34 @@ import seaborn as sns
 
 
 
-#data = pd.read_csv("export_IA.csv")
+#data = pd.read_csv("Data_Arbre.csv")
 data = pd.read_csv("Data_Arbre.csv")
 
 # -----------------------------
 # |   PREPARATION DONNEES     |
 # -----------------------------
 
+'''
 # Transformer données catégorielles en numériques
 encoder = OrdinalEncoder()
 for colonne in data:
     if data[colonne].dtype.name == 'object':
         data[colonne] = encoder.fit_transform(data[[colonne]])
+'''
+# Transformer données en numériques
+# Sélectionner les colonnes
+categorical_columns = [colonne for colonne in data if data[colonne].dtype.name == 'object']
 
-
+# Créer et utiliser l'OrdinalEncoder
+encoder = OrdinalEncoder()
+data[categorical_columns] = encoder.fit_transform(data[categorical_columns])
 
 # Sauvegarde de l'encodeur
 with open('OrdinalEncoder/ordinal_encoder2.pkl', 'wb') as f:
     pickle.dump(encoder, f)
+
+
+
 
 
 # Définir des intervalles d'âge dans une nouvelle colonne 'age_group'
@@ -41,6 +51,7 @@ data = data.dropna()  # supprimer les lignes NaN
 data['age_group'] = data['age_group'].astype(int)
 
 # Normalisation
+# Faire en sorte que les données aient une moyenne de 0 et une variance de 1
 Y = data['age_group']
 
 scaler = StandardScaler()
