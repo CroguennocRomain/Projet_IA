@@ -75,7 +75,7 @@ X = data_norm[['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech', 'feuillage
 # ======================Fonction pour appliquer K-means et afficher les résultats=========================
 def apply_kmeans(data_norm, X, n_clusters):
     # Appliquer K-means
-    kmeans = KMeans(n_clusters=n_clusters).fit(X)
+    kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(X)
     y_pred = kmeans.predict(X)
 
     # Ajouter les labels des clusters au DataFrame original
