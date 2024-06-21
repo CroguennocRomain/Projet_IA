@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV, RandomizedSearchCV
 from sklearn.preprocessing import OrdinalEncoder, StandardScaler, scale
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, precision_score, recall_score
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, precision_score, recall_score, accuracy_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import svm, tree
 import pickle
@@ -128,10 +128,10 @@ y_pred_svm = svm.predict(X_test)
 y_pred_tree = tree.predict(X_test)
 
 # Taux de classification
-score_sgd = sgd.score(X_test, y_test)
-score_neigh = neigh.score(X_test, y_test)
-score_svm = svm.score(X_test, y_test)
-score_tree = tree.score(X_test, y_test)
+score_sgd = accuracy_score(y_test, y_pred_sgd)
+score_neigh = accuracy_score(y_test, y_pred_neigh)
+score_svm = accuracy_score(y_test, y_pred_svm)
+score_tree = accuracy_score(y_test, y_pred_tree)
 
 # Affichage scores
 print("Taux SGD : ", score_sgd)
