@@ -13,7 +13,7 @@ import seaborn as sns
 
 
 
-#data = pd.read_csv("export_IA.csv")
+#data = pd.read_csv("Data_Arbre.csv")
 data = pd.read_csv("Data_Arbre.csv")
 
 # -----------------------------
@@ -27,8 +27,8 @@ for colonne in data:
     if data[colonne].dtype.name == 'object':
         data[colonne] = encoder.fit_transform(data[[colonne]])
 '''
-# Transformer données catégorielles en numériques
-# Sélectionner les colonnes catégorielles
+# Transformer données en numériques
+# Sélectionner les colonnes
 categorical_columns = [colonne for colonne in data if data[colonne].dtype.name == 'object']
 
 # Créer et entraîner l'OrdinalEncoder
