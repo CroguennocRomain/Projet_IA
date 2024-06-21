@@ -86,7 +86,7 @@ def predire_tempete(method):
         model_filename = 'models/knn_model.pkl'
 
     # Si la méthode est '2' et que le nombre d'arguments est correct
-    elif method == '2' and len(sys.argv) == 3:
+    elif method == '2' and len(sys.argv) == 4:
         new_data = {
             'age_estim': [float(sys.argv[1])]
         }
@@ -103,7 +103,7 @@ def predire_tempete(method):
         new_data_df[categorical_columns] = encoder.transform(new_data_df[categorical_columns])
 
         # Sélectionner les colonnes nécessaires pour le modèle
-        X = new_data_df[['age_estim']]
+        X = new_data_df[['haut_tot','fk_revetement']]
 
         # Charger le scaler et transformer les données
         with open('Scaler/scaler3.pkl', 'rb') as file:

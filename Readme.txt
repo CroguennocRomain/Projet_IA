@@ -39,7 +39,7 @@ Exemple: python script_age.py 15.1 2.1 2.5 "Adulte" "PINNIGnig" 3
 Le script prend en entrée une valeurs pour la méthode choisie et une valeur pour chaque features de la méthode :
     - méthode 0 (rf_model) : "haut_tronc", "latitude", "longitude", "fk_stadedev", "haut_tot", "clc_secteur".
     - méthode 1 (knn_model) : "latitude", "longitude", "clc_secteur", "fk_port".
-    - méthode 2 (svm_model) : "age_estim".
+    - méthode 2 (svm_model) : haut_tot", "fk_revetement".
 #Et retourne un fichier JSON contenant le numéro du cluster auquel appartient l'arbre
 
 Avant d'executer le fichier "script_fonc3.py", s'il n'y a pas de fichier "ordinal_encoder3.pkl" ou "scaler3.pkl" ou "models/knn_model.pkl" ou "models/rf_model.pkl" ou "models/svm_model.pkl"
