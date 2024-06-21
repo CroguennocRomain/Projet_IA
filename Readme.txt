@@ -40,7 +40,7 @@ Le script prend en entrée une valeurs pour la méthode choisie et une valeur po
     - méthode 0 (rf_model) : "haut_tronc", "latitude", "longitude", "fk_stadedev", "haut_tot", "clc_secteur".
     - méthode 1 (knn_model) : "latitude", "longitude", "clc_secteur", "fk_port".
     - méthode 2 (svm_model) : haut_tot", "fk_revetement".
-#Et retourne un fichier JSON et crée un fichier JSON "script3_result.json" contenant le numéro du cluster auquel appartient l'arbre
+Et retourne un fichier JSON et crée un fichier JSON "script3_result.json" contenant 1 si l'arbre est plus suceptible d'être déraciné par une tempête et 0 sinon
 
 Avant d'executer le fichier "script_fonc3.py", s'il n'y a pas de fichier "ordinal_encoder3.pkl" ou "scaler3.pkl" ou "models/knn_model.pkl" ou "models/rf_model.pkl" ou "models/svm_model.pkl"
 Ou si vous souhaitez voir les scores et métriques du model d'apprentissage
