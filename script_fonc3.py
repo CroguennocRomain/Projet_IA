@@ -136,7 +136,7 @@ def predire_tempete(method):
     res = y_pred.tolist()
     json_data = json.dumps(res)
 
-    with open('JSON/script2_result.json', 'w') as f:
+    with open('JSON/script3_result.json', 'w') as f:
         json.dump(res, f)
 
     return json_data
