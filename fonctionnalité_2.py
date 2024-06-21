@@ -31,7 +31,7 @@ for colonne in data:
 # Sélectionner les colonnes
 categorical_columns = [colonne for colonne in data if data[colonne].dtype.name == 'object']
 
-# Créer et entraîner l'OrdinalEncoder
+# Créer et utiliser l'OrdinalEncoder
 encoder = OrdinalEncoder()
 data[categorical_columns] = encoder.fit_transform(data[categorical_columns])
 
@@ -51,6 +51,7 @@ data = data.dropna()  # supprimer les lignes NaN
 data['age_group'] = data['age_group'].astype(int)
 
 # Normalisation
+# Faire en sorte que les données aient une moyenne de 0 et une variance de 1
 Y = data['age_group']
 
 scaler = StandardScaler()
