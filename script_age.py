@@ -72,7 +72,6 @@ def predire_age(values, method):
     # Mettre notre instance à prédire sous le bon format
     arbre = np.array([[float(df_norm['haut_tot'][0]), float(df_norm['haut_tronc'][0]), float(df_norm['tronc_diam'][0]),
                        float(df_norm['fk_stadedev'][0]), float(df_norm['fk_nomtech'][0])]])
-    print(arbre)
 
 
     # Sélection du modèle d'apprentissage
