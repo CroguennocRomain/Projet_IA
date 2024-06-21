@@ -9,7 +9,7 @@ import pickle
 def main():
     #vérifier qu'il y a bien le bon nombre d'argument
     if len(sys.argv) != 6:
-        print('Usage: python script_fonc1.py <haut_tot> <haut_tronc> <fk_stadedev> <fk_nomtech> ----> Exemple: python script_fonc1.py 15.1 2.1 "Adulte" "PINNIGnig"')
+        print('Usage: python script_fonc1.py <haut_tot> <haut_tronc> <fk_stadedev> <fk_nomtech> <feuillage> ----> Exemple: python script_fonc1.py 15.1 2.1 "Adulte" "PINNIGnig" "Conifère"')
         sys.exit(1)
 
     # Charger l'encodeur depuis le fichier
