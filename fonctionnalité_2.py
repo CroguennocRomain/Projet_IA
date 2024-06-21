@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV, RandomizedSearchCV
 from sklearn.preprocessing import OrdinalEncoder, StandardScaler, scale
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, precision_score, recall_score
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, precision_score, recall_score, accuracy_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import svm, tree
 import pickle
@@ -13,7 +13,7 @@ import seaborn as sns
 
 
 
-#data = pd.read_csv("export_IA.csv")
+#data = pd.read_csv("Data_Arbre.csv")
 data = pd.read_csv("Data_Arbre.csv")
 
 # -----------------------------
@@ -27,11 +27,11 @@ for colonne in data:
     if data[colonne].dtype.name == 'object':
         data[colonne] = encoder.fit_transform(data[[colonne]])
 '''
-# Transformer données catégorielles en numériques
-# Sélectionner les colonnes catégorielles
+# Transformer données en numériques
+# Sélectionner les colonnes
 categorical_columns = [colonne for colonne in data if data[colonne].dtype.name == 'object']
 
-# Créer et entraîner l'OrdinalEncoder
+# Créer et utiliser l'OrdinalEncoder
 encoder = OrdinalEncoder()
 data[categorical_columns] = encoder.fit_transform(data[categorical_columns])
 
@@ -51,6 +51,7 @@ data = data.dropna()  # supprimer les lignes NaN
 data['age_group'] = data['age_group'].astype(int)
 
 # Normalisation
+# Faire en sorte que les données aient une moyenne de 0 et une variance de 1
 Y = data['age_group']
 
 scaler = StandardScaler()
@@ -127,10 +128,10 @@ y_pred_svm = svm.predict(X_test)
 y_pred_tree = tree.predict(X_test)
 
 # Taux de classification
-score_sgd = sgd.score(X_test, y_test)
-score_neigh = neigh.score(X_test, y_test)
-score_svm = svm.score(X_test, y_test)
-score_tree = tree.score(X_test, y_test)
+score_sgd = accuracy_score(y_test, y_pred_sgd)
+score_neigh = accuracy_score(y_test, y_pred_neigh)
+score_svm = accuracy_score(y_test, y_pred_svm)
+score_tree = accuracy_score(y_test, y_pred_tree)
 
 # Affichage scores
 print("Taux SGD : ", score_sgd)
