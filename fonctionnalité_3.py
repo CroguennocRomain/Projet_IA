@@ -36,11 +36,12 @@ data['fk_arb_etat'] = data['fk_arb_etat'].replace({
     'ABATTU': 0
 })
 
-# Encodage des variables catégorielles
+# Sélectionner les colonnes
+categorical_columns = [colonne for colonne in data if data[colonne].dtype.name == 'object']
+data.info(max)
+# Créer et utiliser l'OrdinalEncoder
 encoder = OrdinalEncoder()
-for colonne in data:
-    if data[colonne].dtype.name == 'object':
-        data[colonne] = encoder.fit_transform(data[[colonne]])
+data[categorical_columns] = encoder.fit_transform(data[categorical_columns])
 
 # Définition de la variable cible
 Y = data['fk_arb_etat']

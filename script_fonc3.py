@@ -45,6 +45,7 @@ def predire_tempete(method):
         categorical_columns = [colonne for colonne in new_data_df if new_data_df[colonne].dtype == 'object']
         with open('OrdinalEncoder/ordinal_encoder3.pkl', 'rb') as file:
             encoder = pickle.load(file)
+        new_data_df.info(max)
         new_data_df[categorical_columns] = encoder.transform(new_data_df[categorical_columns])
 
         # Charger le scaler depuis le fichier (pour normaliser)

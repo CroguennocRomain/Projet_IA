@@ -8,9 +8,11 @@ import pickle
 
 def main():
     #vérifier qu'il y a bien le bon nombre d'argument
-    if len(sys.argv) != 6:
-        print('Usage: python script_fonc1.py <haut_tot> <haut_tronc> <fk_stadedev> <fk_nomtech> <feuillage> ----> Exemple: python script_fonc1.py 15.1 2.1 "Adulte" "PINNIGnig" "Conifère"')
+    if len(sys.argv) != 7:
+        print('Usage: python script_fonc1.py <haut_tot> <haut_tronc> <fk_stadedev> <fk_nomtech> <feuillage> <méthode>----> Exemple: python script_fonc1.py 15.1 2.1 "Adulte" "PINNIGnig" "Conifère" 0')
         sys.exit(1)
+
+    nb_methode = int(sys.argv[6])
 
     # Charger l'encodeur depuis le fichier
     with open('OrdinalEncoder/ordinal_encoder1.pkl', 'rb') as file:
@@ -53,7 +55,10 @@ def main():
     new_data_df = pd.DataFrame(new_data_df, columns=data.columns)
 
     # Charger les centroids
-    centroids_data = pd.read_csv('centroids.csv')
+    if(nb_methode == 0):
+        centroids_data = pd.read_csv('centroids.csv')
+    if(nb_methode == 1):
+        centroids_data = pd.read_csv('centroids2.csv')
 
     # Les colonnes utilisées pour les centroids
     features = [f'feature_{i}' for i in range(centroids_data.shape[1])]

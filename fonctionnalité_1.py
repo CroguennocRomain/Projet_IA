@@ -161,7 +161,7 @@ plt.title('Méthode du coude pour déterminer le nombre optimal de clusters')
 plt.show()
 
 #====================== créer fichier centroide cluster ================================
-
+#=========== K-means =================
 # obtenir les centroids.
 centroids = kmeans_model.cluster_centers_
 print(centroids)
@@ -206,6 +206,51 @@ print(data_with_clusters)
 
 centroids_df.to_csv('centroids.csv', index=False)
 
+#=========== Agglomerative clustering =================
+
+# obtenir les centroids.
+centroids = np.array([data_agglo_cluster_method[data_agglo_cluster_method['cluster'] == i][['haut_tot', 'haut_tronc', 'fk_stadedev', 'fk_nomtech', 'feuillage']].mean() for i in range(n_clusters)])
+print(centroids)
+
+centroids_df = pd.DataFrame(centroids, columns=[f'feature_{i}' for i in range(centroids.shape[1])])
+
+
+#swap les centroids et les valeur de cluster associé pour que le cluster 0 ait le plus petit centroids pour 'haut_tot' et que le cluster 6 ait le plus grand
+# Boucle pour échanger les valeurs entre l'index 0 et les autres indices
+for i in range(len(centroids_df['feature_0']) - 1):
+    # Trouver la valeur maximale de la colonne entre l'index 0 et l'index len(centroids_df['feature_0'])-1 - i
+    max_value = centroids_df['feature_0'][:len(centroids_df['feature_0']) - 1 - i].max()
+
+    # Trouver la dernière valeur de la colonne pour l'index len(centroids_df['feature_0'])-1 - i
+    last_value = centroids_df['feature_0'].iloc[-1 - i]
+    print(last_value, max_value)
+
+    # Vérifier si la valeur maximale est supérieure à la dernière valeur
+    if max_value > last_value:
+        # Trouver l'index de la valeur maximale
+        max_index = centroids_df['feature_0'][:len(centroids_df['feature_0']) - 1 - i].idxmax()
+        print(centroids_df.index[-1 - i], max_index)
+
+        # Échanger les lignes complètes dans centroids_df
+        max_row = centroids_df.iloc[max_index].copy()
+        last_row = centroids_df.iloc[centroids_df.index[-1 - i]].copy()
+
+        centroids_df.iloc[max_index] = last_row
+        centroids_df.iloc[centroids_df.index[-1 - i]] = max_row
+
+        # Échanger les valeurs de cluster dans data_with_clusters
+        data_with_clusters['cluster'] = data_with_clusters['cluster'].replace(
+            {max_index: centroids_df.index[-1 - i], centroids_df.index[-1 - i]: max_index})
+
+# Afficher les DataFrames modifiés
+print("Centroids DataFrame après échange :")
+print(centroids_df)
+
+print("\nData_with_clusters DataFrame après échange des clusters :")
+print(data_with_clusters)
+
+
+centroids_df.to_csv('centroids2.csv', index=False)
 
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃   METRIQUE POUR APPRENTISSAGE NON SUPERVISE   ┃
